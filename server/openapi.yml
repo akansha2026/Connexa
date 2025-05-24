@@ -1,0 +1,428 @@
+openapi: '3.0.3'
+info:
+  title: Connexa API
+  version: '1.0'
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Development Server
+  - url: <evd_server_url>
+    description: Internal Testing Server (EVD)
+  - url: <production_server_url>
+    description: Production Server
+paths:
+  /healthcheck:
+    get:
+      summary: Server Health Check
+      description: Perform a basic health check to ensure the server is running.
+      operationId: getHealthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Server is operational
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Server is up and running"
+
+  /auth/register:
+    post:
+      summary: Register a new user
+      description: Register a new user account and return user details upon success.
+      operationId: postAuthRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: Akansha
+                email:
+                  type: string
+                  example: akansha@gmail.com
+                password: 
+                  type: string
+                  example: XYZ@1234
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully registered
+                  user:
+                    type: object
+                    properties:
+                      id: 
+                        type: string
+                        format: uuid
+                        example: 1870ad28-8e57-4bd9-94ef-4315b16ca758
+                      name:
+                        type: string
+                        example: Akansha
+                      email: 
+                        type: string
+                        example: akansha@gmail.com
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email is required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /auth/login:
+    post:
+      summary: Authenticate user
+      description: Authenticate user credentials and return access and refresh tokens.
+      operationId: postAuthLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: akansha@gmail.com
+                password: 
+                  type: string
+                  example: XYZ@1234
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully logged in
+                  tokens:
+                    type: object
+                    properties:
+                      accessToken: 
+                        type: string
+                        example: <access_token>
+                      refreshToken:
+                        type: string
+                        example: <refresh_token>
+        '400':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email is required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /auth/refresh-token:
+    post:
+      summary: Refresh access token
+      description: Generate a new short-lived access token using a valid refresh token.
+      operationId: postAuthRefreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: <refresh_token>
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Access token issued successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token refreshed successfully
+                  accessToken: 
+                    type: string
+                    example: <new_access_token>
+        '400':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid refresh token
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /auth/verify-email:
+    post:
+      summary: Verify user email address
+      description: Submit OTP token received via email to verify account.
+      operationId: postAuthVerifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  example: 823721
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Email successfully verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verified successfully
+        '400':
+          description: Invalid or expired OTP token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid verification code
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /auth/verify-email/resend:
+    post:
+      summary: Resend email verification code
+      description: Resend the OTP to the user’s registered email.
+      operationId: postAuthResendVerifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  example: akansha@gmail.com
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: OTP resent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OTP resent successfully
+        '400':
+          description: Missing email address
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email is required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /auth/forgot-password:
+    post:
+      summary: Forgot password
+      description: Request a password reset link via registered email.
+      operationId: postAuthForgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  example: akansha@gmail.com
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password reset link sent successfully
+        '400':
+          description: Missing email address
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email is required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /auth/reset-password:
+    post:
+      summary: Reset password
+      description: Set a new password using a valid password reset token.
+      operationId: postAuthResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                  example: 823721
+                newPassword:
+                  type: string
+                  example: NewPassword@1234
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Password updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password reset successfully
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid reset token or new password is required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
