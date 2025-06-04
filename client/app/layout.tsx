@@ -30,7 +30,7 @@ export default function RootLayout({
         <Toaster position="top-center"/>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >

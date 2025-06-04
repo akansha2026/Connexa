@@ -1,10 +1,16 @@
-"use client"
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getUserFromToken } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function HomePage() {
+  const user = await getUserFromToken();
+
+  if (!user) {
+    redirect("/landing");
+  }
+
   return (
-    <div className="w-full h-screen bg-background">
-      <ThemeToggle />
-    </div>
-  )
+    <main className="flex items-center justify-center h-screen">
+      <h1 className="text-4xl font-bold">Welcome back!</h1>
+    </main>
+  );
 }

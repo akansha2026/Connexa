@@ -10,9 +10,10 @@ import {
   CREATED_CODE,
   INTERNAL_SERVER_ERROR_CODE,
   INTERNAL_SERVER_ERROR_MESSAGE,
+  OK_CODE,
+  UNAUTHORIZED_CODE,
 } from "../constants/http-status.constants";
-import { error } from "console";
-import { RegisterPayload } from "../types/auth.types";
+import { LoginPayload, RegisterPayload } from "../types/auth.types";
 import { formatZodError } from "../utils/zod.utils";
 import { sendEmail } from "../utils/email";
 import {
@@ -124,4 +125,74 @@ export async function signup(req: Request, res: Response) {
   }
 }
 
-export function login(req: Request, res: Response) {}
+export async function login(req: Request, res: Response) {
+  const credentials: LoginPayload = req.body;
+  if (!credentials.email || !credentials.password) {
+    res.status(BAD_REQUEST_CODE).json({
+      error: "Email and password are required",
+    });
+    return;
+  }
+
+  // We will check in database if the user exists or not
+  const foundUser = await dbClient.user.findFirst({
+    where: {
+      email: credentials.email,
+    },
+  });
+
+  if (!foundUser) {
+    res.status(UNAUTHORIZED_CODE).json({
+      error: "Invalid email address",
+    });
+    return;
+  }
+
+  // We will validate the password
+  const isPasswordMatched = await bcrypt.compare(
+    credentials.password,
+    foundUser.password,
+  );
+  if (!isPasswordMatched) {
+    res.status(UNAUTHORIZED_CODE).json({
+      error: "Provided password is incorrect",
+    });
+    return;
+  }
+
+  // We will generate tokens
+  const payload = {
+    id: foundUser.id,
+    email: foundUser.email,
+  };
+
+  const accessToken = jwt.sign(payload, JWT_SECRET_KEY!, {
+    expiresIn: "1h",
+  });
+  const refreshToken = jwt.sign(payload, JWT_SECRET_KEY!, {
+    expiresIn: "1d",
+  });
+
+  // Set tokens in cookies
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 1000, // 1 hour
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
+  res.status(OK_CODE).json({
+    message: "User logged in successfully",
+    data: {
+      accessToken,
+      refreshToken,
+    },
+  });
+}

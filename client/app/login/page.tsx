@@ -20,6 +20,9 @@ import { Input } from "@/components/ui/input"
 import { Typography } from "@/components/ui/typography"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
+import { apiClient, AxiosErrorResponse, isAxiosError } from "@/lib/axios"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
     email: z.string().email("Please provide a valid email address"),
@@ -39,8 +42,26 @@ export default function Login() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    const router = useRouter()
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            await apiClient.post("/auth/login", values)
+            toast.success("Login successful.")
+
+            router.push("/")
+        } catch (error) {
+            if (isAxiosError(error)) {
+                // You can handle error.response here if needed
+                const errorMessage = (error.response as AxiosErrorResponse).data.error || "An error occurred during signup.";
+                toast.error(errorMessage);
+            } else if (error instanceof Error) {
+                toast.error(error.message)
+            } else {
+                toast.error("Something went wrong. Please try again later.")
+            }
+            console.error("Error during signup:", error);
+        }
     }
 
     return (
