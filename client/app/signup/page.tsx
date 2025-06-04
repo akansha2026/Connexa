@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input"
 import { Typography } from "@/components/ui/typography"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
+import { toast } from "sonner"
+import { apiClient } from "@/lib/axios"
 
 const formSchema = z.object({
     name: z.string().min(1, {
@@ -42,8 +44,17 @@ export default function Signup() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+           const { data } = await apiClient.post("/auth/signup", values)
+           console.log(data)
+           toast.success("Registration successful.")
+
+           // Naviagte to login
+        } catch (error) {
+            if(error instanceof Error) toast.error(error.message)
+            else toast.error("Something went wrong, please try again later")
+        }
     }
 
     return (

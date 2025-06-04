@@ -4,3 +4,4 @@
 {"level":"error","message":"Name must be atleat 1 character long, Email is incorrect"}
 {"level":"error","message":"Name must be atleat 1 character long, Email is incorrect, Password should not be greater than 20 character long"}
 {"level":"error","message":"Name must be atleat 1 character long, Email is incorrect, Password must be atleast 8 character long"}
+{"level":"error","message":"/Users/abhishek/Dev/Akansha/Connexa/server/templates/welcome.ejs:26\n    24| \n    25|               <div style=\"text-align: center; margin: 24px 0;\">\n >> 26|                 <a href=\"<%= verifyLink %>\" \n    27|                    style=\"background-color: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;\">\n    28|                   Verify Email\n    29|                 </a>\n\nverifyLink is not defined"}

@@ -1,12 +1,19 @@
 import express from "express";
-import { PORT } from "./configs/variables";
+import { CLIENT_BASE_URL, PORT } from "./configs/variables";
 import { logger } from "./configs/logger";
-import client from "./configs/db";
+import dbClient from "./configs/db";
 import { authRouter } from "./routes/auth.routes";
+import path from "path";
+import cors from "cors"
 
 const app = express();
 
+// Middlewares
 app.use(express.json());
+app.use(cors({
+  origin: CLIENT_BASE_URL,
+  credentials: true
+}))
 
 // Setup routes
 app.use("/api/v1/auth", authRouter)
@@ -19,7 +26,7 @@ app.get("/", (_req, res) => {
 async function startServer() {
   try {
     // Try to connect with DB
-    await client.$connect();
+    await dbClient.$connect();
 
     // Start the server
     app.listen(PORT, () => {

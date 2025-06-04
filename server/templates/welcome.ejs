@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to Connexa</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background: white; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+          <tr>
+            <td align="center" style="padding-bottom: 20px;">
+              <h1 style="margin: 0; font-size: 24px; color: #1e1e1e;">Welcome to Connexa</h1>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="font-size: 16px; color: #333;">
+              <p style="margin: 0 0 16px;">Hello <%= name %>,</p>
+              <p style="margin: 0 0 16px;">Welcome to <strong>Connexa</strong>! We're excited to have you on board. Our platform is designed to help you stay connected.</p>
+              <p style="margin: 0 0 24px;">To get started, please verify your email address by clicking the button below:</p>
+
+              <div style="text-align: center; margin: 24px 0;">
+                <a href="<%= verifyLink %>" 
+                   style="background-color: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">
+                  Verify Email
+                </a>
+              </div>
+
+              <p style="margin: 0 0 16px;">If you did not sign up for Connexa, you can safely ignore this email.</p>
+              <p style="margin: 0;">Regards,<br/>The Connexa Team</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
