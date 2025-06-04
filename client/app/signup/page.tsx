@@ -20,7 +20,8 @@ import { Typography } from "@/components/ui/typography"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { toast } from "sonner"
-import { apiClient } from "@/lib/axios"
+import { apiClient, AxiosErrorResponse, isAxiosError } from "@/lib/axios"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
     name: z.string().min(1, {
@@ -44,23 +45,33 @@ export default function Signup() {
         },
     })
 
+    const router = useRouter()
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-           const { data } = await apiClient.post("/auth/signup", values)
-           console.log(data)
-           toast.success("Registration successful.")
+            await apiClient.post("/auth/signup", values)
+            toast.success("Registration successful.")
 
-           // Naviagte to login
+            // Naviagte to login
+            router.push("/login")
         } catch (error) {
-            if(error instanceof Error) toast.error(error.message)
-            else toast.error("Something went wrong, please try again later")
+            if (isAxiosError(error)) {
+                // You can handle error.response here if needed
+                const errorMessage = (error.response as AxiosErrorResponse).data.error || "An error occurred during signup.";
+                toast.error(errorMessage);
+            } else if (error instanceof Error) {
+                toast.error(error.message)
+            } else {
+                toast.error("Something went wrong. Please try again later.")
+            }
+            console.error("Error during signup:", error);
         }
     }
 
     return (
         <div className="w-full min-h-screen flex items-center justify-center gap-8">
             <div className="w-0 md:flex-[0.5] flex justify-center items-center md:w-full h-screen bg-zinc-800 dark:bg-zinc-300">
-                <Image src={SignupSVG} alt="SignUp Screen SVG" className="p-6"/>
+                <Image src={SignupSVG} alt="SignUp Screen SVG" className="p-6" />
             </div>
             <div className="flex-[0.5] flex flex-col justify-center items-center gap-8">
                 <Form {...form}>
@@ -98,7 +109,7 @@ export default function Signup() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input placeholder="Password" {...field} type="password"/>
+                                        <Input placeholder="Password" {...field} type="password" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

@@ -4,7 +4,7 @@ import bcrypt from "bcrypt"
 import dbClient from "../configs/db";
 import { logger } from "../configs/logger";
 import { v4 as uuid } from "uuid"
-import { BAD_REQUEST_CODE, CREATED_CODE, INTERNAL_SERVER_ERROR_CODE, INTERNAL_SERVER_ERROR_MESSAGE } from "../constants/http-status.constants";
+import { BAD_REQUEST_CODE, CONFLICT_CODE, CREATED_CODE, INTERNAL_SERVER_ERROR_CODE, INTERNAL_SERVER_ERROR_MESSAGE } from "../constants/http-status.constants";
 import { error } from "console";
 import { RegisterPayload } from "../types/auth.types";
 import { formatZodError } from "../utils/zod.utils";
@@ -44,7 +44,7 @@ export async function signup(req: Request, res: Response) {
         })
 
         if (foundUser) {
-            res.status(BAD_REQUEST_CODE).json({
+            res.status(CONFLICT_CODE).json({
                 error: "User with same email already exists"
             })
             return

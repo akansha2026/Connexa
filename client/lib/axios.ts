@@ -7,3 +7,16 @@ export const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+export function isAxiosError(error: unknown) {
+  return typeof error === "object" && error !== null && "response" in error
+}
+
+export type AxiosErrorResponse = {
+  data: {
+    error: string;
+  };
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+};

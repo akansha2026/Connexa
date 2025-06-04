@@ -3,7 +3,6 @@ import { CLIENT_BASE_URL, PORT } from "./configs/variables";
 import { logger } from "./configs/logger";
 import dbClient from "./configs/db";
 import { authRouter } from "./routes/auth.routes";
-import path from "path";
 import cors from "cors"
 
 const app = express();
