@@ -1,11 +1,9 @@
 import { Router } from "express";
 import { signup } from "../controllers/auth.controllers";
 
-const authRouter = Router()
+const authRouter = Router();
 
 // Define your routes
-authRouter.post("/signup", signup)
+authRouter.post("/signup", signup);
 
-export {
-    authRouter
-}
+export { authRouter };

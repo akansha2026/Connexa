@@ -1,7 +1,7 @@
-openapi: '3.0.3'
+openapi: "3.0.3"
 info:
   title: Connexa API
-  version: '1.0'
+  version: "1.0"
 servers:
   - url: http://localhost:8080/api/v1
     description: Local Development Server
@@ -18,7 +18,7 @@ paths:
       tags:
         - Health
       responses:
-        '200':
+        "200":
           description: Server is operational
           content:
             application/json:
@@ -51,13 +51,13 @@ paths:
                 email:
                   type: string
                   example: akansha@gmail.com
-                password: 
+                password:
                   type: string
                   example: XYZ@1234
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: Successfully registered
           content:
             application/json:
@@ -70,17 +70,17 @@ paths:
                   user:
                     type: object
                     properties:
-                      id: 
+                      id:
                         type: string
                         format: uuid
                         example: 1870ad28-8e57-4bd9-94ef-4315b16ca758
                       name:
                         type: string
                         example: Akansha
-                      email: 
+                      email:
                         type: string
                         example: akansha@gmail.com
-        '400':
+        "400":
           description: Invalid request parameters
           content:
             application/json:
@@ -90,7 +90,7 @@ paths:
                   error:
                     type: string
                     example: Email is required
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -119,13 +119,13 @@ paths:
                 email:
                   type: string
                   example: akansha@gmail.com
-                password: 
+                password:
                   type: string
                   example: XYZ@1234
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: Authentication successful
           content:
             application/json:
@@ -138,13 +138,13 @@ paths:
                   tokens:
                     type: object
                     properties:
-                      accessToken: 
+                      accessToken:
                         type: string
                         example: <access_token>
                       refreshToken:
                         type: string
                         example: <refresh_token>
-        '400':
+        "400":
           description: Missing or invalid credentials
           content:
             application/json:
@@ -154,7 +154,7 @@ paths:
                   error:
                     type: string
                     example: Email is required
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -185,7 +185,7 @@ paths:
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: Access token issued successfully
           content:
             application/json:
@@ -195,10 +195,10 @@ paths:
                   message:
                     type: string
                     example: Token refreshed successfully
-                  accessToken: 
+                  accessToken:
                     type: string
                     example: <new_access_token>
-        '400':
+        "400":
           description: Invalid refresh token
           content:
             application/json:
@@ -208,7 +208,7 @@ paths:
                   error:
                     type: string
                     example: Invalid refresh token
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -239,7 +239,7 @@ paths:
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: Email successfully verified
           content:
             application/json:
@@ -249,7 +249,7 @@ paths:
                   message:
                     type: string
                     example: Email verified successfully
-        '400':
+        "400":
           description: Invalid or expired OTP token
           content:
             application/json:
@@ -259,7 +259,7 @@ paths:
                   error:
                     type: string
                     example: Invalid verification code
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -290,7 +290,7 @@ paths:
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: OTP resent successfully
           content:
             application/json:
@@ -300,7 +300,7 @@ paths:
                   message:
                     type: string
                     example: OTP resent successfully
-        '400':
+        "400":
           description: Missing email address
           content:
             application/json:
@@ -310,7 +310,7 @@ paths:
                   error:
                     type: string
                     example: Email is required
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -341,7 +341,7 @@ paths:
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: Password reset email sent
           content:
             application/json:
@@ -351,7 +351,7 @@ paths:
                   message:
                     type: string
                     example: Password reset link sent successfully
-        '400':
+        "400":
           description: Missing email address
           content:
             application/json:
@@ -361,7 +361,7 @@ paths:
                   error:
                     type: string
                     example: Email is required
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -396,7 +396,7 @@ paths:
       tags:
         - Auth
       responses:
-        '200':
+        "200":
           description: Password updated successfully
           content:
             application/json:
@@ -406,7 +406,7 @@ paths:
                   message:
                     type: string
                     example: Password reset successfully
-        '400':
+        "400":
           description: Invalid or expired token
           content:
             application/json:
@@ -416,7 +416,7 @@ paths:
                   error:
                     type: string
                     example: Invalid reset token or new password is required
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
