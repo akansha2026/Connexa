@@ -1,9 +1,11 @@
 import express from "express";
 import { CLIENT_BASE_URL, PORT } from "./configs/variables";
-import { logger } from "./configs/logger";
+import logger  from "./configs/logger";
 import dbClient from "./configs/db";
 import { authRouter } from "./routes/auth.routes";
 import cors from "cors";
+import { authMiddleware } from "./middlewares/auth.middleware";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser())
+app.use(authMiddleware)
 
 // Setup routes
 app.use("/api/v1/auth", authRouter);
@@ -39,6 +43,7 @@ async function startServer() {
     if (error instanceof Error)
       logger.error(`Internal error: ${error.message}`);
     else logger.error(`Something went wrong`);
+    process.exit(1)
   }
 }
 

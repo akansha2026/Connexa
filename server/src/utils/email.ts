@@ -1,5 +1,5 @@
 import { emailClient } from "../configs/email";
-import { logger } from "../configs/logger";
+import logger from "../configs/logger";
 import ejs from "ejs";
 
 export async function sendEmail(

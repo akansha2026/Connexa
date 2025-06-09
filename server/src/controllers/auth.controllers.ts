@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
 import dbClient from "../configs/db";
-import { logger } from "../configs/logger";
+import logger from "../configs/logger";
 import { v4 as uuid } from "uuid";
 import {
   BAD_REQUEST_CODE,
@@ -126,6 +126,100 @@ export async function signup(req: Request, res: Response) {
 }
 
 export async function login(req: Request, res: Response) {
+  const credentials: LoginPayload = req.body;
+  if (!credentials.email || !credentials.password) {
+    res.status(BAD_REQUEST_CODE).json({
+      error: "Email and password are required",
+    });
+    return;
+  }
+
+  // We will check in database if the user exists or not
+  const foundUser = await dbClient.user.findFirst({
+    where: {
+      email: credentials.email,
+    },
+  });
+
+  if (!foundUser) {
+    res.status(UNAUTHORIZED_CODE).json({
+      error: "Invalid email address",
+    });
+    return;
+  }
+
+  // We will validate the password
+  const isPasswordMatched = await bcrypt.compare(
+    credentials.password,
+    foundUser.password,
+  );
+  if (!isPasswordMatched) {
+    res.status(UNAUTHORIZED_CODE).json({
+      error: "Provided password is incorrect",
+    });
+    return;
+  }
+
+  // We will generate tokens
+  const payload = {
+    id: foundUser.id,
+    email: foundUser.email,
+  };
+
+  const accessToken = jwt.sign(payload, JWT_SECRET_KEY!, {
+    expiresIn: "1h",
+  });
+  const refreshToken = jwt.sign(payload, JWT_SECRET_KEY!, {
+    expiresIn: "1d",
+  });
+
+  // Set tokens in cookies
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 1000, // 1 hour
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
+  res.status(OK_CODE).json({
+    message: "User logged in successfully",
+    data: {
+      accessToken,
+      refreshToken,
+    },
+  });
+}
+
+export async function logout(req: Request, res: Response) {
+  // Delete all cookies from browser
+  // Set tokens in cookies
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 1000, // 1 hour
+  })
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 1000, // 1 day
+  })
+
+  res.status(OK_CODE).json({
+    message: "User logged out successfully",
+  });
+}
+
+export async function forgotPassword(req: Request, res: Response) {
   const credentials: LoginPayload = req.body;
   if (!credentials.email || !credentials.password) {
     res.status(BAD_REQUEST_CODE).json({

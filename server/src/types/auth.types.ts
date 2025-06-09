@@ -8,3 +8,15 @@ export interface LoginPayload {
   email: string;
   password: string;
 }
+
+// Extend Express Request interface to include 'user'
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                email: string;
+                id: string;
+            };
+        }
+    }
+}
