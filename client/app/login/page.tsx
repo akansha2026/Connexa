@@ -55,8 +55,6 @@ export default function Login() {
                 // You can handle error.response here if needed
                 const errorMessage = (error.response as AxiosErrorResponse).data.error || "An error occurred during signup.";
                 toast.error(errorMessage);
-            } else if (error instanceof Error) {
-                toast.error(error.message)
             } else {
                 toast.error("Something went wrong. Please try again later.")
             }

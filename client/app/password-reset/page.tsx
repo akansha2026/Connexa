@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input"
 import { Typography } from "@/components/ui/typography"
 import { useState } from "react";
 import Link from "next/link";
+import { apiClient, AxiosErrorResponse, isAxiosError } from "@/lib/axios";
+import { toast } from "sonner";
 
 const formSchema = z.object({
     email: z.string().email("Please provide a valid email address"),
@@ -32,9 +34,21 @@ export default function PasswordReset() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        setEmailSent(true)
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            setEmailSent(false)
+            await apiClient.post("/auth/forgot-password", values)
+            setEmailSent(true)
+        } catch (error) {
+            if (isAxiosError(error)) {
+                // You can handle error.response here if needed
+                const errorMessage = (error.response as AxiosErrorResponse).data.error || "An error occurred during signup.";
+                toast.error(errorMessage);
+            } else{
+                toast.error("Something went wrong. Please try again later.")
+            }
+            console.error("Error during signup:", error);
+        }
     }
 
     return (

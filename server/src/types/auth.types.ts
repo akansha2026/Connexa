@@ -9,6 +9,13 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+
+
 // Extend Express Request interface to include 'user'
 declare global {
     namespace Express {
