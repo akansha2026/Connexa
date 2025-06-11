@@ -266,7 +266,7 @@ export async function forgotPassword(req: Request, res: Response) {
       expiresIn: "10m"
     })
 
-    const passwordResetEndpoint = CLIENT_PASSWORD_RESET_ENDPOINT?.replace(
+    const verifyEmailEndpoint = CLIENT_PASSWORD_RESET_ENDPOINT?.replace(
       "{token}",
       token,
     );
@@ -279,7 +279,7 @@ export async function forgotPassword(req: Request, res: Response) {
       templatePath,
       {
         name: foundUser.name,
-        resetLink: `${CLIENT_BASE_URL}${passwordResetEndpoint}`,
+        resetLink: `${CLIENT_BASE_URL}${verifyEmailEndpoint}`,
       },
     );
 
@@ -295,7 +295,6 @@ export async function forgotPassword(req: Request, res: Response) {
     res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
   }
 }
-
 
 export async function resetPassword(req: Request, res: Response) {
   try {
@@ -338,6 +337,85 @@ export async function resetPassword(req: Request, res: Response) {
     res.status(OK_CODE).json({
       message: "Password updated succesfully"
     });
+  } catch (error) {
+    let message = INTERNAL_SERVER_ERROR_MESSAGE;
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    logger.error(message);
+    res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
+  }
+}
+
+export async function verifyEmail(req: Request, res: Response) {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      res.status(BAD_REQUEST_CODE).json({
+        error: "Token is required"
+      })
+    }
+
+    const tokenPayload = jwt.verify(token, JWT_SECRET_KEY!)
+
+    let email: string | undefined;
+    if (typeof tokenPayload === "object" && tokenPayload !== null && "email" in tokenPayload) {
+      email = (tokenPayload as jwt.JwtPayload).email as string;
+    }
+
+    if (!email) {
+      res.status(BAD_REQUEST_CODE).json({
+        error: "Invalid or expired token",
+      });
+      return;
+    }
+
+    // Update tyhe user status
+    const FoundUser = dbClient.user.update({
+      data:{
+        verified:true
+      },
+      where:{
+        email: email
+      }
+    })
+    res.status(OK_CODE).json({
+      message: "Email verified succesfully"
+    })
+  } catch (error) {
+    let message = INTERNAL_SERVER_ERROR_MESSAGE;
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    logger.error(message);
+    res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
+  }
+}
+
+export async function getProfile(req: Request, res: Response) {
+  try {
+    const id = req.user?.id
+
+    const foundUser = await dbClient.user.findFirst({
+      where: {
+        id: id
+      },
+      omit: {
+        password: true
+      }
+    })
+
+    if (!foundUser) {
+      res.status(UNAUTHORIZED_CODE).json({
+        error: "Invalid email address or user id",
+      });
+      return;
+    }
+
+    res.status(OK_CODE).json({
+      message: "Successfully fetched profile",
+      data: foundUser
+    })
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
     if (error instanceof Error) {

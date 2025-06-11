@@ -14,7 +14,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
             return;
         }
         // Add code here to check if there are cookies present in request or not, if not present throw unauthorized error
-        const { accessToken, refreshToken } = req.cookies
+        const { accessToken } = req.cookies
         // If present then get the accessToken cookie value, the decode it using JWT and check for expiry ansd verify signature with you JWT secret
         if (!accessToken) {
             res.status(UNAUTHORIZED_CODE).json({
@@ -25,7 +25,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
         // Let's decode the access token is it right or wrong
         const payload = jwt.verify(accessToken, JWT_SECRET_KEY!);
-        console.log(payload)
+        
         // Then attach the email and id to the request
         if (typeof payload === "object" && payload !== null && "email" in payload && "id" in payload) {
             req.user = {
