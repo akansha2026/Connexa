@@ -3,7 +3,6 @@ import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
 import dbClient from "../configs/db";
 import logger from "../configs/logger";
-import { v4 as uuid } from "uuid";
 import {
   BAD_REQUEST_CODE,
   CONFLICT_CODE,
@@ -67,12 +66,10 @@ export async function signup(req: Request, res: Response) {
     }
 
     const hashedPassword = await bcrypt.hash(credentials.password, 10);
-    const id = uuid();
 
     // For signUp we have to save the data of user in user database
     const savedUser = await dbClient.user.create({
       data: {
-        id,
         verified: false,
         ...credentials,
         password: hashedPassword,

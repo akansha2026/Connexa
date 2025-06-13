@@ -1,13 +1,17 @@
 import express from "express";
 import { CLIENT_BASE_URL, PORT } from "./configs/variables";
-import logger  from "./configs/logger";
+import logger from "./configs/logger";
 import dbClient from "./configs/db";
 import { authRouter } from "./routes/auth.routes";
 import cors from "cors";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import cookieParser from "cookie-parser";
+import { createServer } from "http"
+import { initWebSocket } from "./ws/init.ws";
 
 const app = express();
+const server = createServer(app)
+
 
 // Middlewares
 app.use(express.json());
@@ -28,13 +32,14 @@ app.get("/", (_req, res) => {
   res.send("Hello from Connexa server");
 });
 
+
 async function startServer() {
   try {
     // Try to connect with DB
     await dbClient.$connect();
 
     // Start the server
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       logger.info(
         `Connected to database & server started succesfully. You can access it at http://localhost:${PORT}`,
       );
@@ -47,4 +52,8 @@ async function startServer() {
   }
 }
 
+// Initialize web socket
+initWebSocket(server)
+
+// Start the server
 startServer();
