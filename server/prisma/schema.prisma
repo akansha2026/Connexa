@@ -8,20 +8,20 @@ datasource db {
 }
 
 model User {
-  id               String              @id @default(uuid())
-  name             String
-  email            String              @unique
-  password         String
-  verified         Boolean
-  online           Boolean             @default(false)
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String
+  verified Boolean
+  online   Boolean @default(false)
 
-  messages         Message[]           @relation("SenderMessages")
-  participants     Participant[]
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  messages     Message[]     @relation("SenderMessages")
+  participants Participant[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  seenMessages     MessageSeenBy[]
-  groupAdminIn     ConversationAdmin[]
+  seenMessages MessageSeenBy[]
+  groupAdminIn ConversationAdmin[]
 
   ownerContacts Contact[] @relation("OwnerContacts")
   contactUsers  Contact[] @relation("ContactUsers")
@@ -30,37 +30,37 @@ model User {
 }
 
 model Conversation {
-  id            String               @id @default(uuid())
-  isGroup       Boolean              @default(false)
-  name          String?
-  participants  Participant[]
-  admins        ConversationAdmin[]
-  messages      Message[]
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
+  id           String              @id @default(uuid())
+  isGroup      Boolean             @default(false)
+  name         String?
+  participants Participant[]
+  admins       ConversationAdmin[]
+  messages     Message[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   @@map("conversations")
 }
 
 model Participant {
-  id             String        @id @default(uuid())
-  user           User          @relation(fields: [userId], references: [id])
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
   userId         String
-  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
-  joinedAt       DateTime      @default(now())
-  lastSeen       DateTime?     // used for UI status / typing
-  isMuted        Boolean       @default(false) // optional, mute notifications
+  joinedAt       DateTime     @default(now())
+  lastSeen       DateTime? // used for UI status / typing
+  isMuted        Boolean      @default(false) // optional, mute notifications
 
   @@unique([userId, conversationId])
   @@map("participants")
 }
 
 model ConversationAdmin {
-  id             String        @id @default(uuid())
-  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  id             String       @id @default(uuid())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
-  user           User          @relation(fields: [userId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
   userId         String
 
   @@unique([conversationId, userId])
@@ -68,16 +68,16 @@ model ConversationAdmin {
 }
 
 model Message {
-  id             String        @id @default(uuid())
+  id             String          @id @default(uuid())
   content        String?
-  type           MessageType   @default(TEXT)
+  type           MessageType     @default(TEXT)
   mediaUrl       String?
-  sender         User          @relation("SenderMessages", fields: [senderId], references: [id])
+  sender         User            @relation("SenderMessages", fields: [senderId], references: [id])
   senderId       String
-  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  conversation   Conversation    @relation(fields: [conversationId], references: [id])
   conversationId String
   seenBy         MessageSeenBy[]
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime        @default(now())
 
   @@map("messages")
 }
@@ -95,18 +95,17 @@ model MessageSeenBy {
 }
 
 model Contact {
-  id         String   @id @default(uuid())
-  owner      User     @relation("OwnerContacts", fields: [ownerId], references: [id])
-  ownerId    String
-  contact    User     @relation("ContactUsers", fields: [contactId], references: [id])
-  contactId  String
-  nickname   String?
-  blocked  Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  owner     User     @relation("OwnerContacts", fields: [ownerId], references: [id])
+  ownerId   String
+  contact   User     @relation("ContactUsers", fields: [contactId], references: [id])
+  contactId String
+  nickname  String?
+  blocked   Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   @@unique([ownerId, contactId]) // Prevent duplicate entries
 }
-
 
 enum MessageType {
   TEXT
