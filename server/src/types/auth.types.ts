@@ -14,6 +14,11 @@ export interface ResetPasswordPayload {
   password: string;
 }
 
+export interface AuthTokenPayload {
+  id: string;
+  email: string;
+}
+
 
 
 // Extend Express Request interface to include 'user'

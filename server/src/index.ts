@@ -6,12 +6,12 @@ import { authRouter } from "./routes/auth.routes";
 import cors from "cors";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import cookieParser from "cookie-parser";
-import { createServer } from "http"
+import { createServer } from "http";
 import { initWebSocket } from "./ws/init.ws";
+import { conversationRouter } from "./routes/conversation.routes";
 
 const app = express();
-const server = createServer(app)
-
+const server = createServer(app);
 
 // Middlewares
 app.use(express.json());
@@ -21,17 +21,17 @@ app.use(
     credentials: true,
   }),
 );
-app.use(cookieParser())
-app.use(authMiddleware)
+app.use(cookieParser());
+app.use(authMiddleware);
 
 // Setup routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/conversations", conversationRouter);
 
 // Home endpoint
 app.get("/", (_req, res) => {
   res.send("Hello from Connexa server");
 });
-
 
 async function startServer() {
   try {
@@ -48,12 +48,12 @@ async function startServer() {
     if (error instanceof Error)
       logger.error(`Internal error: ${error.message}`);
     else logger.error(`Something went wrong`);
-    process.exit(1)
+    process.exit(1);
   }
 }
 
 // Initialize web socket
-initWebSocket(server)
+initWebSocket(server);
 
 // Start the server
 startServer();

@@ -14,6 +14,7 @@ model User {
   password String
   verified Boolean
   online   Boolean @default(false)
+  lastSeen DateTime @default(now())
 
   messages     Message[]     @relation("SenderMessages")
   participants Participant[]
@@ -105,6 +106,7 @@ model Contact {
   createdAt DateTime @default(now())
 
   @@unique([ownerId, contactId]) // Prevent duplicate entries
+  @@map("contacts")
 }
 
 enum MessageType {

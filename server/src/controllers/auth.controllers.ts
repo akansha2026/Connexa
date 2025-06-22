@@ -12,7 +12,12 @@ import {
   OK_CODE,
   UNAUTHORIZED_CODE,
 } from "../constants/http-status.constants";
-import { LoginPayload, RegisterPayload, ResetPasswordPayload } from "../types/auth.types";
+import {
+  AuthTokenPayload,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordPayload,
+} from "../types/auth.types";
 import { formatZodError } from "../utils/zod.utils";
 import { sendEmail } from "../utils/email";
 import {
@@ -160,7 +165,7 @@ export async function login(req: Request, res: Response) {
     }
 
     // We will generate tokens
-    const payload = {
+    const payload : AuthTokenPayload = {
       id: foundUser.id,
       email: foundUser.email,
     };
@@ -213,14 +218,14 @@ export async function logout(req: Request, res: Response) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 60 * 60 * 1000, // 1 hour
-    })
+    });
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 60 * 60 * 1000, // 1 day
-    })
+    });
 
     res.status(OK_CODE).json({
       message: "User logged out successfully",
@@ -260,28 +265,26 @@ export async function forgotPassword(req: Request, res: Response) {
     }
 
     const token = jwt.sign({ email: email }, JWT_SECRET_KEY!, {
-      expiresIn: "10m"
-    })
+      expiresIn: "10m",
+    });
 
     const verifyEmailEndpoint = CLIENT_PASSWORD_RESET_ENDPOINT?.replace(
       "{token}",
       token,
     );
 
-    let templatePath = path.join(process.cwd(), "templates", "reset-password.ejs");
-    await sendEmail(
-      SMTP_USER!,
-      email,
-      "Password Reset",
-      templatePath,
-      {
-        name: foundUser.name,
-        resetLink: `${CLIENT_BASE_URL}${verifyEmailEndpoint}`,
-      },
+    let templatePath = path.join(
+      process.cwd(),
+      "templates",
+      "reset-password.ejs",
     );
+    await sendEmail(SMTP_USER!, email, "Password Reset", templatePath, {
+      name: foundUser.name,
+      resetLink: `${CLIENT_BASE_URL}${verifyEmailEndpoint}`,
+    });
 
     res.status(OK_CODE).json({
-      message: "Reset link sent successfully"
+      message: "Reset link sent successfully",
     });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
@@ -295,7 +298,7 @@ export async function forgotPassword(req: Request, res: Response) {
 
 export async function resetPassword(req: Request, res: Response) {
   try {
-    const payload: ResetPasswordPayload = req.body
+    const payload: ResetPasswordPayload = req.body;
     if (!payload.password || !payload.token) {
       res.status(BAD_REQUEST_CODE).json({
         error: "Password and token are required",
@@ -307,7 +310,11 @@ export async function resetPassword(req: Request, res: Response) {
     const tokenPayload = jwt.verify(payload.token, JWT_SECRET_KEY!);
 
     let email: string | undefined;
-    if (typeof tokenPayload === "object" && tokenPayload !== null && "email" in tokenPayload) {
+    if (
+      typeof tokenPayload === "object" &&
+      tokenPayload !== null &&
+      "email" in tokenPayload
+    ) {
       email = (tokenPayload as jwt.JwtPayload).email as string;
     }
 
@@ -323,16 +330,15 @@ export async function resetPassword(req: Request, res: Response) {
 
     await dbClient.user.update({
       data: {
-        password: hashedPassword
+        password: hashedPassword,
       },
       where: {
-        email: email
-      }
-    })
-
+        email: email,
+      },
+    });
 
     res.status(OK_CODE).json({
-      message: "Password updated succesfully"
+      message: "Password updated succesfully",
     });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
@@ -349,14 +355,18 @@ export async function verifyEmail(req: Request, res: Response) {
     const { token } = req.body;
     if (!token) {
       res.status(BAD_REQUEST_CODE).json({
-        error: "Token is required"
-      })
+        error: "Token is required",
+      });
     }
 
-    const tokenPayload = jwt.verify(token, JWT_SECRET_KEY!)
+    const tokenPayload = jwt.verify(token, JWT_SECRET_KEY!);
 
     let email: string | undefined;
-    if (typeof tokenPayload === "object" && tokenPayload !== null && "email" in tokenPayload) {
+    if (
+      typeof tokenPayload === "object" &&
+      tokenPayload !== null &&
+      "email" in tokenPayload
+    ) {
       email = (tokenPayload as jwt.JwtPayload).email as string;
     }
 
@@ -369,16 +379,16 @@ export async function verifyEmail(req: Request, res: Response) {
 
     // Update tyhe user status
     const FoundUser = dbClient.user.update({
-      data:{
-        verified:true
+      data: {
+        verified: true,
       },
-      where:{
-        email: email
-      }
-    })
+      where: {
+        email: email,
+      },
+    });
     res.status(OK_CODE).json({
-      message: "Email verified succesfully"
-    })
+      message: "Email verified succesfully",
+    });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
     if (error instanceof Error) {
@@ -391,16 +401,16 @@ export async function verifyEmail(req: Request, res: Response) {
 
 export async function getProfile(req: Request, res: Response) {
   try {
-    const id = req.user?.id
+    const id = req.user?.id;
 
     const foundUser = await dbClient.user.findFirst({
       where: {
-        id: id
+        id: id,
       },
       omit: {
-        password: true
-      }
-    })
+        password: true,
+      },
+    });
 
     if (!foundUser) {
       res.status(UNAUTHORIZED_CODE).json({
@@ -411,8 +421,8 @@ export async function getProfile(req: Request, res: Response) {
 
     res.status(OK_CODE).json({
       message: "Successfully fetched profile",
-      data: foundUser
-    })
+      data: foundUser,
+    });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
     if (error instanceof Error) {
