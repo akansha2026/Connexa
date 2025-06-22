@@ -39,7 +39,6 @@ model Conversation {
   messages     Message[]
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
-
   @@map("conversations")
 }
 

@@ -175,6 +175,12 @@ export async function getConversationsByUserId(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
 
+    const limit = ConversationConstants.CONVERSATION_PAGE_SIZE;
+
+    // Handle pagination parameters
+    const page = parseInt(req.query.page as string) || 1;
+    const offset = (page - 1) * limit;
+
     const conversations = await dbClient.conversation.findMany({
       include: {
         participants: {
@@ -197,12 +203,52 @@ export async function getConversationsByUserId(req: Request, res: Response) {
       },
       orderBy: [
         { updatedAt: 'desc' },
-      ]
+      ],
+      skip: offset,
+      take: limit,
+    });
+
+    // Finding total conversations
+    const totalConversations = await dbClient.conversation.count({
+      where: {
+        participants: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+    });
+
+    // Find the last message corresponding to each conversation
+    const conversationIds = conversations.map((conv) => conv.id);
+    const lastMessages = await dbClient.message.findMany({
+      where: {
+        conversationId: {
+          in: conversationIds,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 1,
+    });
+
+    // Map last messages to conversations
+    const conversationsWithLastMessage = conversations.map((conversation) => {
+      const lastMessage = lastMessages.find((msg) => msg.conversationId === conversation.id);
+      return {
+        ...conversation,
+        lastMessage: lastMessage || null, // Include last message or null if not found
+      };
     });
 
     res.status(200).json({
       message: "Conversations fetched successfully",
-      data: conversations,
+      data: conversationsWithLastMessage,
+      meta: {
+        total: totalConversations,
+        page: Math.ceil(totalConversations / limit),
+      },
     });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
@@ -218,7 +264,7 @@ export async function getConversationMessages(req: Request, res: Response) {
   logger.debug("Entered getConversationMessages controller");
   try {
     const conversationId = req.params.id;
-    const limit = ConversationConstants.MESSAGE_LIMIT;
+    const limit = ConversationConstants.MESSAGE_PAGE_SIZE;
 
     // Handle pagination parameters
     const page = parseInt(req.query.page as string) || 1;
