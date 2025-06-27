@@ -41,15 +41,15 @@ export function initWebSocket(server: Server<typeof IncomingMessage, typeof Serv
 
         // Handling close
         ws.on('close', async function () {
-            console.log('Client disconnected!')
             onlineUsers.delete(loggedInUser.id);
 
             // Update the user status in DB to offline & last seen time
             try {
-                await dbClient.user.update({
+                const user = await dbClient.user.update({
                     where: { id: loggedInUser.id },
                     data: { online: false, lastSeen: new Date() }
                 });
+                console.log("Disconnected user: ", user)
             } catch (error) {
                 console.error('Error updating user offline status:', error);
                 return;

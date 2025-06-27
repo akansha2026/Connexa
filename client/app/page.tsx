@@ -39,7 +39,7 @@ export default function HomePage() {
   }, [router, setUser]);
 
   return (
-    <ResizablePanelGroup className="min-h-screen" direction="horizontal">
+    <ResizablePanelGroup className="min-h-screen max-h-screen" direction="horizontal">
       <ResizablePanel defaultSize={25} minSize={25} maxSize={35}>
         <NavigationBar />
       </ResizablePanel>

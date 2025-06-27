@@ -1,4 +1,5 @@
-import { ChatList } from "./chat-list";
+
+import {ChatList} from "./chat-list";
 import { ProfileSection } from "./profile-section";
 import { SearchSection } from "./search-section";
 

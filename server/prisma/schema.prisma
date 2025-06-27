@@ -15,6 +15,7 @@ model User {
   verified Boolean
   online   Boolean @default(false)
   lastSeen DateTime @default(now())
+  avatarUrl String?
 
   messages     Message[]     @relation("SenderMessages")
   participants Participant[]
@@ -26,6 +27,7 @@ model User {
 
   ownerContacts Contact[] @relation("OwnerContacts")
   contactUsers  Contact[] @relation("ContactUsers")
+  ownedConversations  Conversation[]
 
   @@map("users")
 }
@@ -39,6 +41,9 @@ model Conversation {
   messages     Message[]
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
+  avatarUrl    String?
+  owner        User?              @relation(fields: [ownerId], references: [id])
+  ownerId      String?
   @@map("conversations")
 }
 
@@ -49,7 +54,6 @@ model Participant {
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
   joinedAt       DateTime     @default(now())
-  lastSeen       DateTime? // used for UI status / typing
   isMuted        Boolean      @default(false) // optional, mute notifications
 
   @@unique([userId, conversationId])
