@@ -20,3 +20,9 @@ export type AxiosErrorResponse = {
   statusText: string;
   headers: Record<string, string>;
 };
+
+export enum RequestState{
+  IN_PROGRESS,
+  SUCCESS,
+  FAILURE
+}

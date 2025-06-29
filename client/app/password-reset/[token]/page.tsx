@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input"
 import { Typography } from "@/components/ui/typography"
 import { toast } from "sonner"
 import { use } from "react"
+import { apiClient, AxiosErrorResponse, isAxiosError } from "@/lib/axios"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
     password: z.string().min(8, {
@@ -38,7 +40,6 @@ export default function PasswordReset({
     params: Promise<{ token: string }>;
 }) {
     const { token } = use(params);
-    console.log(token)
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -47,12 +48,30 @@ export default function PasswordReset({
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    const router = useRouter();
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         if (values.password != values.confirmPassword) {
             toast.error("Passwords do not match")
             return;
         }
-        console.log(values)
+        try {
+            await apiClient.post("/auth/reset-password", {
+                token,
+                password: values.password
+            })
+            toast.success("Password updated successfully!")
+            router.push("/login")
+        } catch (error) {
+            if (isAxiosError(error)) {
+                // You can handle error.response here if needed
+                const errorMessage = (error.response as AxiosErrorResponse).data.error || "An error occurred during signup.";
+                toast.error(errorMessage);
+            } else {
+                toast.error("Something went wrong. Please try again later.")
+            }
+            console.error("Error during signup:", error);
+        }
     }
 
     return (
