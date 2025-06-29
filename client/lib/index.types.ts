@@ -39,6 +39,7 @@ export type Message = {
   senderId: string
   conversationId: string
   createdAt: Date
+  sender: User
 }
 
 export type Contact = {
@@ -48,6 +49,12 @@ export type Contact = {
   nickname: string | null
   blocked: boolean
   createdAt: Date
+}
+
+export type MetaData = {
+  total: number,
+  pages: number,
+  currPage: number
 }
 
 export type Store = {
@@ -60,8 +67,10 @@ export type Store = {
   activeConversation: Conversation | null;
   setActiveConversation: (conversation: Conversation | null) => void;
 
-  messages: Map<string, Message[]>
-  setMessages: (conversationId: string, messages: Message[]) => void
+  messages: Map<string, Message[]>;
+  setMessages: (conversationId: string, messages: Message[]) => void;
 
+  messagesMeta: Map<string, MetaData>;
+  setMessagesMeta: (conversationId: string, metadata: MetaData) => void;
 };
 

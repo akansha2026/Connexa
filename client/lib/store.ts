@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { Conversation, Message, Store, User } from "./index.types"
+import { Conversation, Message, MetaData, Store, User } from "./index.types"
 
 export const useStore = create<Store>((set) => ({
     user: null,
@@ -17,5 +17,14 @@ export const useStore = create<Store>((set) => ({
             const updatedMessages = new Map(state.messages)
             updatedMessages.set(conversationId, messages)
             return { messages: updatedMessages }
+        }),
+
+    messagesMeta: new Map<string, MetaData>(),
+    setMessagesMeta: (conversationId: string, metadata: MetaData) =>
+        set((state) => {
+            const updatedMetadata = new Map(state.messagesMeta)
+            updatedMetadata.set(conversationId, metadata)
+            return { messagesMeta: updatedMetadata }
         })
+
 }))

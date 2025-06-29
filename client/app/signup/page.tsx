@@ -22,6 +22,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { apiClient, AxiosErrorResponse, isAxiosError } from "@/lib/axios"
 import { useRouter } from "next/navigation"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const formSchema = z.object({
     name: z.string().min(1, {
@@ -67,8 +68,8 @@ export default function Signup() {
     }
 
     return (
-        <div className="w-full min-h-screen flex items-center justify-center gap-8">
-            <div className="w-0 md:flex-[0.5] flex justify-center items-center md:w-full h-screen bg-zinc-800 dark:bg-zinc-300">
+        <div className="relative w-full min-h-screen flex items-center justify-center gap-8">
+            <div className="w-0 md:flex-[0.5] flex justify-center items-center md:w-full h-screen bg-primary">
                 <Image src={SignupSVG} alt="SignUp Screen SVG" className="p-6" />
             </div>
             <div className="flex-[0.5] flex flex-col justify-center items-center gap-8">
@@ -124,6 +125,7 @@ export default function Signup() {
                     </form>
                 </Form>
             </div>
+            <ThemeToggle className="absolute top-4 left-4" />
         </div>
     )
 }

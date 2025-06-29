@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Password reset",
+    title: "Password Reset | Connexa",
     description: "Reset your password",
 };
 

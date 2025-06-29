@@ -8,16 +8,60 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { apiClient } from "@/lib/axios";
-import { User } from "@/lib/index.types";
+import { Conversation, Message, User } from "@/lib/index.types";
 import { useStore } from "@/lib/store";
+import { WebSocketEvents, ws } from "@/lib/ws";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { useSound } from "react-sounds";
 
 export default function HomePage() {
   const router = useRouter();
-  const { setUser } = useStore();
+  const {play} = useSound("notification/notification")
+  const { user, setUser, activeConversation, conversations, setActiveConversation, setConversations, setMessages, messages: coversationMessages } = useStore();
+  
+  const handleNewMessage = useCallback((data: unknown) => {
+    const message = (data as Message);
+    
+    if(message.senderId !== user?.id) play()
+
+    if (activeConversation) {
+      const updatedConversations = conversations?.map(conv => {
+        if (conv.id === message.conversationId) {
+          return {
+            ...conv,
+            lastMessage: message
+          } as Conversation
+        }
+
+        return conv
+      })
+
+      setConversations(updatedConversations!)
+      setActiveConversation({
+        ...activeConversation,
+        lastMessage: message
+      })
+
+      // Update the messages
+      const messages = coversationMessages.get(activeConversation.id) as Message[]
+      const updatedMessages: Message[] = [message, ...(messages ?? [])]
+      setMessages(activeConversation.id, updatedMessages)
+    }
+
+  }, [activeConversation, conversations, coversationMessages, play, setActiveConversation, setConversations, setMessages, user?.id]);
 
   useEffect(() => {
+    ws.on(WebSocketEvents.NEW_MESSAGE, handleNewMessage)
+
+    // Remove old listensers
+    return () => {
+      ws.off(WebSocketEvents.NEW_MESSAGE)
+    }
+  }, [handleNewMessage])
+
+  useEffect(() => {
+    ws.connect()
     async function getUserFromToken() {
       try {
         const { data } = await apiClient.get("/auth/profile");
@@ -32,7 +76,7 @@ export default function HomePage() {
         }
       } catch (error) {
         console.log(error);
-        router.push("/login");
+        router.push("/landing");
       }
     }
     getUserFromToken();

@@ -9,6 +9,7 @@ import logger from "../configs/logger";
 import dbClient from "../configs/db";
 import { CreateConversationPayload } from "../types/conversation.types";
 import { ConversationConstants } from "../constants/conversation.constants";
+import { Message } from "@prisma/client";
 
 export async function createConversation(req: Request, res: Response) {
   logger.debug("Entered createConnversation controller")
@@ -199,21 +200,18 @@ export async function getConversationsByUserId(req: Request, res: Response) {
     });
 
     // Finding total conversations
-    const totalConversations = conversations.length
+    const totalConversations = await dbClient.conversation.count({
+      where: {
+        participants: {
+          some: {
+            userId: userId,
+          },
+        },
+      }
+    });
 
     // Find the last message corresponding to each conversation
     const conversationIds = conversations.map((conv) => conv.id);
-    const lastMessages = await dbClient.message.findMany({
-      where: {
-        conversationId: {
-          in: conversationIds,
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: 1,
-    });
 
     const participants = await dbClient.participant.findMany({
       include: {
@@ -230,15 +228,28 @@ export async function getConversationsByUserId(req: Request, res: Response) {
       },
     });
 
+    const lastMessages = new Map<string, any>()
+
+    for(const id of conversationIds){
+      const message = await dbClient.message.findMany({
+        where: {
+          conversationId: id
+        },
+        orderBy: [
+          {createdAt: 'desc'}
+        ],
+        take: 1
+      })
+      lastMessages.set(id, message?.[0])
+    }
     // Map last messages to conversations
     const updatedConversations = conversations.map((conversation) => {
-      const lastMessage = lastMessages.find((msg) => msg.conversationId === conversation.id);
       const participantList = participants
         .filter((participant) => participant.conversationId === conversation.id).map((participant) => participant.user);
         
       return {
         ...conversation,
-        lastMessage: lastMessage || null, // Include last message or null if not found
+        lastMessage: lastMessages.get(conversation.id) || null, // Include last message or null if not found
         participants: participantList
       };
     });
@@ -248,7 +259,7 @@ export async function getConversationsByUserId(req: Request, res: Response) {
       data: updatedConversations,
       meta: {
         total: totalConversations,
-        page: Math.ceil(totalConversations / limit),
+        pages: Math.ceil(totalConversations / limit),
         currPage: page
       },
     });
@@ -273,6 +284,9 @@ export async function getConversationMessages(req: Request, res: Response) {
     const offset = (page - 1) * limit;
 
     const messages = await dbClient.message.findMany({
+      include: {
+        sender: true
+      },
       where: {
         conversationId: conversationId,
       },
@@ -283,14 +297,18 @@ export async function getConversationMessages(req: Request, res: Response) {
       ]
     });
 
-    const totalMessages = messages.length
+    const totalMessages = await dbClient.message.count({
+      where: {
+        conversationId: conversationId,
+      }
+    })
 
     res.status(200).json({
       message: "Messages fetched successfully",
       data: messages,
       meta: {
         total: totalMessages,
-        page: Math.ceil(totalMessages / limit),
+        pages: Math.ceil(totalMessages / limit),
         currPage: page
       },
     });
