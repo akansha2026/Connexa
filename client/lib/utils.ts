@@ -21,3 +21,7 @@ export function formatTime(dateTime: Date | undefined): string {
   }
   return dt.toFormat("dd LLL yyyy"); // e.g. 22 Jun 2025
 }
+
+export async function sleep(ms: number){
+  return new Promise((resolve) => setTimeout(() => resolve("Success"), ms));
+}
