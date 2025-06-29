@@ -19,7 +19,7 @@ function sendMessage(ws: WebSocket, type: WebSocketEvents, data: any) {
         type,
         content: data
     }))
-}
+}   
 
 // handlers
 async function handleNewMessage(payload: HandlerData) {
@@ -53,6 +53,9 @@ async function handleNewMessage(payload: HandlerData) {
             data: {
                 senderId: user.id,
                 ...data
+            },
+            include: {
+                sender: true
             }
         })
 

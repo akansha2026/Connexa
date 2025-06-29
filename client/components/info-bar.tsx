@@ -76,7 +76,7 @@ export function InfoBar() {
         <div className="py-3 px-4 shadow-sm border-b flex items-center gap-3">
             <Avatar className="h-10 w-10">
                 <AvatarImage src={avatarUrl(conversation)} alt={user?.name ?? "Avatar"} />
-                <AvatarFallback className="bg-primary text-primary-foreground">
+                <AvatarFallback className="bg-primary">
                     {conversation?.isGroup ? (
                         <UsersRound className="h-6 w-6" />
                     ) : (

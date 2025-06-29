@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Login",
+    title: "Login | Connexa",
     description: "Login page for Connexa",
 };
 

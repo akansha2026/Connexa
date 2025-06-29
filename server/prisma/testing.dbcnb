@@ -1,0 +1,32 @@
+cells:
+  - kind: 2
+    languageId: sql
+    value: "SELECT * FROM users; "
+    metadata: {}
+  - kind: 2
+    languageId: sql
+    value: SELECT "conversationId" from participants WHERE "userId" =
+      'd4351c46-8c4c-4949-9bc9-e1f9413ed821';
+    metadata: {}
+  - kind: 2
+    languageId: sql
+    value: >
+      SELECT * 
+
+      FROM messages 
+
+      WHERE "conversationId" 
+
+      IN (SELECT "conversationId" from participants WHERE "userId" =
+      'd4351c46-8c4c-4949-9bc9-e1f9413ed821')
+
+      ORDER BY "createdAt"
+
+      LIMIT 1;
+    metadata: {}
+metadata:
+  conn:
+    id: 7NLH4IBzT_xYounbr0NA_
+    name: Postgres
+  database: connexa
+  schema: public

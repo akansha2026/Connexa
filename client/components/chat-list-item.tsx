@@ -1,9 +1,8 @@
 import { Conversation } from "@/lib/index.types";
 import { useStore } from "@/lib/store";
-import { DateTime } from 'luxon'
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { UserRound, UsersRound } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 
 type ChatListItemProps = {
     conversation: Conversation;
@@ -22,24 +21,6 @@ export function ChatListItem({ conversation }: ChatListItemProps) {
     }
 
 
-    function lastMessageTime(conversation: Conversation): string {
-        if (conversation.lastMessage) {
-            const dt = DateTime.fromJSDate(new Date(conversation.lastMessage.createdAt));
-
-            const now = DateTime.now();
-
-            if (dt.hasSame(now, 'day')) {
-                return dt.toFormat("t"); 
-            } else if (dt.plus({ days: 1 }).hasSame(now, 'day')) {
-                return "Yesterday";
-            } else if (now.diff(dt, 'days').days <= 7) {
-                return dt.toFormat("ccc"); // e.g. Mon, Tue
-            } else {
-                return dt.toFormat("dd LLL yyyy"); // e.g. 22 Jun 2025
-            }
-        }
-        return "";
-    }
 
     function avatarUrl(conversation: Conversation): string | undefined {
         if (conversation.isGroup) {
@@ -65,15 +46,15 @@ export function ChatListItem({ conversation }: ChatListItemProps) {
     return (
         <div className={
             cn(
-                "relative flex items-center p-4 hover:bg-secondary cursor-pointer transition-colors rounded-sm border border-secondary mb-1",
-                activeConversation?.id === conversation.id ? "bg-secondary" : "bg-transparent"
+                "relative flex items-center p-4 hover:bg-muted cursor-pointer transition-colors rounded-sm border mb-1",
+                activeConversation?.id === conversation.id ? "bg-muted" : "bg-transparent"
             )
         } onClick={() => {
             setActiveConversation(conversation);
         }}>
             <Avatar className="h-10 w-10">
                 <AvatarImage src={avatarUrl(conversation)} alt={user?.name ?? "Avatar"} />
-                <AvatarFallback className="bg-primary text-primary-foreground">
+                <AvatarFallback className="bg-primary">
                     {conversation.isGroup ? (
                         <UsersRound className="h-6 w-6" />
                     ) : (
@@ -86,7 +67,7 @@ export function ChatListItem({ conversation }: ChatListItemProps) {
                 <span className="text-xs text-muted-foreground">{trimmedLastMessage(conversation)}</span>
             </div>
             <div className="ml-auto text-xs text-muted-foreground">
-                {lastMessageTime(conversation)}
+                {formatTime(conversation.lastMessage?.createdAt)}
             </div>
 
             {/* If active add right side green border */}
