@@ -7,17 +7,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar"
-import { ChangeEvent, useState } from "react"
-import { useStore } from "@/lib/store"
+import { ChangeEvent, FormEvent} from "react"
 
+import Image from "next/image"
 
-export default function EditImageDialog() {
-  const { user } = useStore();
-  const [previewImage, setPreviewImage] = useState("")
+type EditImageDialogProps = {
+  previewImage: string;
+  setPreviewImage: (newUrl: string) => void;
+  handleSubmit: (evt: FormEvent<HTMLButtonElement>) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void
+}
+
+export default function EditImageDialog({
+  previewImage,
+  setPreviewImage,
+  handleSubmit,
+  isOpen,
+  setIsOpen
+}: EditImageDialogProps) {
+  
 
   async function handleChange(evt: ChangeEvent<HTMLInputElement>) {
     const file = evt.target.files?.[0]
@@ -41,14 +52,14 @@ export default function EditImageDialog() {
       setPreviewImage(url)
 
     })
+
   }
+
+
   return (
     <div>
-      <Dialog>
+      <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
         <form>
-          <DialogTrigger asChild>
-            <Button className="px-2 py-1 text-sm text-primary" variant='link'>Edit Picture</Button>
-          </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Edit profile picture</DialogTitle>
@@ -62,15 +73,15 @@ export default function EditImageDialog() {
             </div>
 
             {
-              previewImage && <Avatar className="h-32 w-32 relative flex justify-center items-center text-center rounded-full bg-primary">
-                <AvatarImage src={previewImage} alt="Avatar" className="rounded-full" />
-              </Avatar>
+              previewImage && <div className="w-full p-2 flex justify-center border rounded-sm">
+                <Image src={previewImage} alt="Preview image" width={400} height={400} />
+              </div>
             }
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit">Save</Button>
+                <Button type="submit" onClick={handleSubmit}>Submit</Button>
             </DialogFooter>
           </DialogContent>
         </form>

@@ -19,7 +19,7 @@ import {
   ResetPasswordPayload,
 } from "../types/auth.types";
 import { formatZodError } from "../utils/zod.utils";
-import { sendEmail } from "../utils/email";
+import { sendEmail } from "../utils/email.utils";
 import {
   CLIENT_BASE_URL,
   CLIENT_PASSWORD_RESET_ENDPOINT,

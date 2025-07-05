@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { user } from "../controllers/user.controllers";
+import { updateUser } from "../controllers/user.controllers";
 
 const userRouter = Router();
 
-userRouter.patch("/", user)
+userRouter.patch("/", updateUser)
 
 export { userRouter }
