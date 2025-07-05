@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { initWebSocket } from "./ws/init.ws";
 import { conversationRouter } from "./routes/conversation.routes";
+import { userRouter } from "./routes/user.routes";
 
 const app = express();
 const server = createServer(app);
@@ -27,6 +28,7 @@ app.use(authMiddleware);
 // Setup routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/conversations", conversationRouter);
+app.use("/api/v1/users", userRouter);
 
 // Home endpoint
 app.get("/", (_req, res) => {
