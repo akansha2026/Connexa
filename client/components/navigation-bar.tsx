@@ -1,15 +1,18 @@
 import { ChatList } from "./chat-list";
 import { SearchSection } from "./search-section";
-import { UserAccountMenu } from "./user-account-menu"; 
+import { UserAccountMenu } from "./user-account-menu";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MessageSquarePlus, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { ConnectionIndicator } from "./connection-status";
+import { NewChatModal, NewGroupModal } from "./new-conversation";
+
 
 export function NavigationBar() {
-  const {connectionStatus} = useStore()
+  const { connectionStatus } = useStore()
+
   return (
     <div className="h-full flex flex-col bg-card">
       {/* Header Section */}
@@ -23,13 +26,18 @@ export function NavigationBar() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full hover:bg-muted transition-transform hover:scale-105"
-                  >
-                    <MessageSquarePlus className="h-4 w-4" />
-                  </Button>
+
+                  <NewChatModal
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full hover:bg-muted transition-transform hover:scale-105"
+                      >
+                        <MessageSquarePlus className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
                 </TooltipTrigger>
                 <TooltipContent side="bottom">New Chat</TooltipContent>
               </Tooltip>
@@ -38,13 +46,18 @@ export function NavigationBar() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full hover:bg-muted transition-transform hover:scale-105"
-                  >
-                    <Users className="h-4 w-4" />
-                  </Button>
+
+                  <NewGroupModal
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full hover:bg-muted transition-transform hover:scale-105"
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
                 </TooltipTrigger>
                 <TooltipContent side="bottom">New Group</TooltipContent>
               </Tooltip>
@@ -61,7 +74,7 @@ export function NavigationBar() {
       </div>
 
       {/* User Account Menu at Bottom */}
-      <motion.div 
+      <motion.div
         className="border-t border-border/40 bg-card/90 backdrop-blur-sm shadow-inner"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}

@@ -6,6 +6,7 @@ import { ChatListItem } from "./chat-list-item";
 import { motion, AnimatePresence } from "motion/react";
 import { MessageSquare, Users } from "lucide-react";
 import { Button } from "./ui/button";
+import { NewChatModal, NewGroupModal } from "./new-conversation";
 
 export function ChatList() {
   const { conversations, setConversations } = useStore();
@@ -77,23 +78,32 @@ export function ChatList() {
         </p>
 
         <div className="flex gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            className="gap-2"
-          >
-            <MessageSquare className="h-4 w-4" />
-            New Chat
-          </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <Users className="h-4 w-4" />
-            New Group
-          </Button>
+          <NewChatModal
+            trigger={
+              <Button
+                variant="default"
+                size="sm"
+                className="gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                New Chat
+              </Button>
+            }
+          />
+
+          <NewGroupModal
+            trigger={
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Users className="h-4 w-4" />
+                New Group
+              </Button>
+            }
+          />
         </div>
       </motion.div>
     );

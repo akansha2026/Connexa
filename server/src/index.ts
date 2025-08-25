@@ -10,6 +10,7 @@ import { createServer } from "http";
 import { initWebSocket } from "./ws/init.ws";
 import { conversationRouter } from "./routes/conversation.routes";
 import { userRouter } from "./routes/user.routes";
+import { contactRouter } from "./routes/contacts.routes";
 
 const app = express();
 const server = createServer(app);
@@ -29,6 +30,7 @@ app.use(authMiddleware);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/conversations", conversationRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/contacts", contactRouter);
 
 // Home endpoint
 app.get("/", (_req, res) => {

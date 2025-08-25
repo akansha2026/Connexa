@@ -67,3 +67,49 @@ export async function updateUser(req: Request, res: Response) {
         res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
     }
 }
+
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20; // default page size
+    const page = parseInt(req.query.page as string) || 1;
+    const offset = (page - 1) * limit;
+
+    // Fetch total users count
+    const totalUsers = await dbClient.user.count();
+
+    // Fetch paginated users
+    const users = await dbClient.user.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { name: 'asc' }, // optional: sort alphabetically
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        verified: true,
+        online: true,
+        lastSeen: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(OK_CODE).json({
+      message: "Users fetched successfully",
+      data: users,
+      meta: {
+        total: totalUsers,
+        pages: Math.ceil(totalUsers / limit),
+        currPage: page,
+      },
+    });
+  } catch (error) {
+    let message = INTERNAL_SERVER_ERROR_MESSAGE;
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    logger.error(message);
+    res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
+  }
+}

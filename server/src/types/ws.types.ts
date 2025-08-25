@@ -31,3 +31,7 @@ export type HandlerData = {
 }
 
 export type HandlerFunction = (payload?: HandlerData) => Promise<void>
+
+export interface TypingPayload {
+  conversationId: string;
+}

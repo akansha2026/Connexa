@@ -83,6 +83,16 @@ model Message {
   seenBy         MessageSeenBy[]
   createdAt      DateTime        @default(now())
 
+  // New fields for frontend
+  status         String?         // e.g., 'sending' | 'sent' | ...
+  fileName       String?
+  fileSize       Int?
+  editedAt       DateTime?
+  reactions      Json?           // array of { emoji, count, users }
+  readAt         DateTime?
+  deliveredAt    DateTime?
+  sentAt         DateTime?
+
   @@map("messages")
 }
 

@@ -2,7 +2,6 @@ import { useStore } from "@/lib/store";
 import { WebSocketEvents, ws } from "@/lib/ws";
 import { useCallback, useEffect, useRef } from "react";
 
-// Custom hooks
 export const useTypingIndicator = (onTypingStart?: () => void, onTypingStop?: () => void) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isTypingRef = useRef(false);
@@ -17,12 +16,8 @@ export const useTypingIndicator = (onTypingStart?: () => void, onTypingStop?: ()
       });
     }
 
-    // Reset the timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
-    // Set new timeout to stop typing
     typingTimeoutRef.current = setTimeout(() => {
       handleTypingStop();
     }, 3000);
@@ -43,12 +38,9 @@ export const useTypingIndicator = (onTypingStart?: () => void, onTypingStop?: ()
     }
   }, [activeConversation, onTypingStop]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
 

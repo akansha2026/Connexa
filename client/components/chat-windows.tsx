@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { ConnectionStatus } from "@/lib/index.types";
 import { MessagesWindow } from "./messages-window";
+import { NewChatModal, NewGroupModal } from "./new-conversation";
 
 
 // Empty state component
@@ -71,21 +72,27 @@ const EmptyState = ({ connectionStatus }: { connectionStatus: ConnectionStatus }
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => handleQuickAction("Starting new chat")}
-            className="flex items-center gap-2 p-4 bg-primary/5 hover:bg-primary/10 rounded-xl border border-primary/20 transition-all duration-200 hover:scale-[1.02] group"
-          >
-            <MessageCircle className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-            <span className="text-sm font-medium text-primary">New Chat</span>
-          </button>
+          <NewChatModal
+            trigger={
+              <button
+                className="flex items-center gap-2 p-4 bg-primary/5 hover:bg-primary/10 rounded-xl border border-primary/20 transition-all duration-200 hover:scale-[1.02] group"
+              >
+                <MessageCircle className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium text-primary">New Chat</span>
+              </button>
+            }
+          />
 
-          <button
-            onClick={() => handleQuickAction("Creating group")}
-            className="flex items-center gap-2 p-4 bg-accent/50 hover:bg-accent/70 rounded-xl border border-border/50 transition-all duration-200 hover:scale-[1.02] group"
-          >
-            <Users className="h-5 w-5 text-foreground group-hover:scale-110 transition-transform" />
-            <span className="text-sm font-medium text-foreground">New Group</span>
-          </button>
+          <NewGroupModal
+            trigger={
+              <button
+                className="flex items-center gap-2 p-4 bg-accent/50 hover:bg-accent/70 rounded-xl border border-border/50 transition-all duration-200 hover:scale-[1.02] group"
+              >
+                <Users className="h-5 w-5 text-foreground group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium text-foreground">New Group</span>
+              </button>
+            }
+          />
         </div>
       </div>
     </div>
