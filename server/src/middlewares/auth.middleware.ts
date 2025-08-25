@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import logger from "../configs/logger";
 import jwt from "jsonwebtoken"
 import { INTERNAL_SERVER_ERROR_CODE, INTERNAL_SERVER_ERROR_MESSAGE, UNAUTHORIZED_CODE } from "../constants/http-status.constants";
 import { AUTHORIZATION_EXCLUSION_ENDPOINTS, JWT_SECRET_KEY } from "../configs/variables";

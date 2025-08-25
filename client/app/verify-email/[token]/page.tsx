@@ -24,7 +24,7 @@ export default function VerifyEmail({
         });
         setState(RequestState.SUCCESS);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         setState(RequestState.FAILURE);
       }
     }

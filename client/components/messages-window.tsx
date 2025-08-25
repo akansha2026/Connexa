@@ -75,8 +75,8 @@ export function MessagesWindow() {
 
   // Enhanced fetch messages with better error handling and optimization
   const fetchMessages = useCallback(
-    async (page: number, opts?: { 
-      scrollBottom?: boolean; 
+    async (page: number, opts?: {
+      scrollBottom?: boolean;
       maintainScroll?: boolean;
       force?: boolean;
     }) => {
@@ -85,10 +85,9 @@ export function MessagesWindow() {
       const now = Date.now();
       const { lastFetchTime, fetchCooldown, isFetching, hasMoreMessages, retryCount, maxRetries } = fetchState;
 
-      // Prevent duplicate/rapid fetches unless forced
       if (!opts?.force && (
-        isFetching || 
-        !hasMoreMessages || 
+        isFetching ||
+        !hasMoreMessages ||
         (now - lastFetchTime < fetchCooldown) ||
         retryCount >= maxRetries
       )) {
@@ -104,16 +103,16 @@ export function MessagesWindow() {
       fetchAbortControllerRef.current = abortController;
 
       try {
-        setFetchState(prev => ({ 
-          ...prev, 
-          isFetching: true, 
-          lastFetchTime: now 
+        setFetchState(prev => ({
+          ...prev,
+          isFetching: true,
+          lastFetchTime: now
         }));
 
         // Use axios with proper request cancellation
         const { data: res } = await apiClient.get<{ data: Message[]; meta: MetaData }>(
           `/conversations/${activeConversationId}/messages?page=${page}`,
-          { 
+          {
             signal: abortController.signal,
             timeout: 30000 // 30 second timeout
           } as any
@@ -121,14 +120,14 @@ export function MessagesWindow() {
 
         // Check if we have more messages to fetch
         const hasMore = page < res.meta.pages;
-        
+
         setMessages(activeConversationId, (prev = []) => {
           const combined = page === 1 ? res.data : [...res.data, ...prev];
           return dedupeById(combined).sort(byCreatedAtAsc);
         });
 
         setMessagesMeta(activeConversationId, res.meta);
-        
+
         setFetchState(prev => ({
           ...prev,
           isFetching: false,
@@ -154,14 +153,14 @@ export function MessagesWindow() {
 
       } catch (error) {
         if (abortController.signal.aborted) return; // Ignore aborted requests
-        
+
         console.error('Failed to fetch messages:', error);
-        
+
         // Use your custom error handling
         if (isAxiosError(error)) {
           const axiosError = error as any;
           const status = axiosError.response?.status;
-          
+
           if (status === 401) {
             // Handle unauthorized - maybe redirect to login
             console.error('Unauthorized access to messages');
@@ -175,7 +174,7 @@ export function MessagesWindow() {
             setConnectionStatus('disconnected');
           }
         }
-        
+
         setFetchState(prev => ({
           ...prev,
           isFetching: false,
@@ -197,7 +196,7 @@ export function MessagesWindow() {
     if (!el || !currentMeta) return;
 
     const { scrollTop, scrollHeight, clientHeight } = el;
-    
+
     const newScrollState: ScrollState = {
       scrollTop,
       scrollHeight,
@@ -221,10 +220,10 @@ export function MessagesWindow() {
     }
 
     // Load older messages when near top
-    if (newScrollState.isNearTop && 
-        !fetchState.isFetching && 
-        fetchState.hasMoreMessages && 
-        currentMeta.currPage < currentMeta.pages) {
+    if (newScrollState.isNearTop &&
+      !fetchState.isFetching &&
+      fetchState.hasMoreMessages &&
+      currentMeta.currPage < currentMeta.pages) {
       prevScrollHeightRef.current = scrollHeight;
       fetchMessages(currentMeta.currPage + 1, { maintainScroll: true });
     }
@@ -269,7 +268,7 @@ export function MessagesWindow() {
   // Reset when conversation changes with better loading states
   useEffect(() => {
     if (!activeConversationId) return;
-    
+
     if (prevConversationIdRef.current !== activeConversationId) {
       // Cancel any ongoing fetch
       if (fetchAbortControllerRef.current) {
@@ -287,8 +286,8 @@ export function MessagesWindow() {
       });
       setUnreadCount(0);
       setConnectionStatus('connected');
-      
-      
+
+
       fetchMessages(1, { scrollBottom: true });
       prevConversationIdRef.current = activeConversationId;
     }
@@ -300,7 +299,7 @@ export function MessagesWindow() {
 
     const handleNewMessage = (msg: Message) => {
       addMessage(msg);
-      
+
       // If not at bottom, increment unread count
       if (!scrollState.isNearBottom) {
         setUnreadCount(prev => prev + 1);
@@ -352,13 +351,13 @@ export function MessagesWindow() {
 
     currentMessages.forEach((msg, i) => {
       const date = DateTime.fromJSDate(new Date(msg.createdAt)).toISODate();
-      
+
       // Date separator with better styling
       if (date !== lastDate) {
         const dateLabel = DateTime.fromISO(date!);
         const isToday = dateLabel.hasSame(DateTime.now(), 'day');
         const isYesterday = dateLabel.hasSame(DateTime.now().minus({ days: 1 }), 'day');
-        
+
         let dateString;
         if (isToday) dateString = 'Today';
         else if (isYesterday) dateString = 'Yesterday';
@@ -377,7 +376,7 @@ export function MessagesWindow() {
       const prev = i > 0 ? currentMessages[i - 1] : null;
       const next = i < currentMessages.length - 1 ? currentMessages[i + 1] : null;
       const isMine = msg.sender.id === user?.id;
-      const showAvatar = !isMine && (!prev || prev.sender.id !== msg.sender.id || 
+      const showAvatar = !isMine && (!prev || prev.sender.id !== msg.sender.id ||
         DateTime.fromJSDate(new Date(msg.createdAt)).diff(
           DateTime.fromJSDate(new Date(prev.createdAt)), 'minutes'
         ).minutes > 5);
@@ -427,11 +426,10 @@ export function MessagesWindow() {
     <div className="h-full flex flex-col relative bg-background">
       {/* Connection Status Bar */}
       {connectionStatus !== 'connected' && (
-        <div className={`w-full px-4 py-2 text-center text-sm font-medium transition-all duration-300 ${
-          connectionStatus === 'disconnected' 
-            ? 'bg-destructive/10 text-destructive' 
+        <div className={`w-full px-4 py-2 text-center text-sm font-medium transition-all duration-300 ${connectionStatus === 'disconnected'
+            ? 'bg-destructive/10 text-destructive'
             : 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300'
-        }`}>
+          }`}>
           <div className="flex items-center justify-center gap-2">
             {connectionStatus === 'reconnecting' ? (
               <LoaderIcon className="w-4 h-4 animate-spin" />
@@ -451,7 +449,7 @@ export function MessagesWindow() {
       <div
         ref={containerRef}
         className="flex-1 w-full overflow-y-auto scroll-smooth"
-        style={{ 
+        style={{
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent'
         }}
@@ -487,7 +485,13 @@ export function MessagesWindow() {
         )}
 
         <div className="px-4 py-2 space-y-1">
-          {renderMessages()}
+          {currentMessages.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4 select-none">
+              No messages yet. Start the conversation!
+            </p>
+          ) : (
+            renderMessages()
+          )}
         </div>
 
         {/* Enhanced typing indicator */}

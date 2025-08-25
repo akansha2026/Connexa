@@ -16,7 +16,6 @@ export type User = {
   createdAt: Date
   updatedAt: Date
   avatarUrl: string
-  ownerId: string
 }
 
 export type Conversation = {

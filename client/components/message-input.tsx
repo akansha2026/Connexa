@@ -14,7 +14,6 @@ import { useSound } from "react-sounds";
 import { cn } from "@/lib/utils";
 import { useTypingIndicator } from "@/hooks/use-typing";
 import { useVoiceRecording } from "@/hooks/use-recording";
-import { useChatWindow } from "@/hooks/use-chat-window";
 import { AttachmentPreviewComponent } from "./attachement-preview";
 import { AttachmentMenu } from "./attachement-menu";
 import { VoiceRecordingInterface } from "./voice-recording";
@@ -43,16 +42,11 @@ export function MessageInput({
 
   const {
     activeConversation,
-    connectionStatus,
   } = useStore();
 
-  const { handleTypingStart: onTypingStart, handleTypingStop: onTypingStop } = useChatWindow(
-    activeConversation,
-    connectionStatus
-  );
 
   // Custom hooks
-  const { handleTypingStart, handleTypingStop } = useTypingIndicator(onTypingStart, onTypingStop);
+  const { handleTypingStart, handleTypingStop } = useTypingIndicator(() => {}, () => {});
   const {
     isRecording,
     recordingTime,

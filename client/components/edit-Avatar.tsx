@@ -34,9 +34,6 @@ export default function EditImageDialog({
     const file = evt.target.files?.[0]
     if (!file) return;
 
-    const arrayBuffer = await file.arrayBuffer()
-    console.log(arrayBuffer)
-
     // Event based
     const reader = new FileReader()
     reader.readAsDataURL(file)

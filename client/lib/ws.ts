@@ -28,7 +28,6 @@ export class WebSocketManager {
     this.socket = new WebSocket(this.url);
 
     this.socket.addEventListener("open", () => {
-      console.log("WebSocket connected");
       this.reconnectAttempts = 0; // Reset on successful connection
       this.emit(WebSocketEvents.CONNECTED, null);
     });
@@ -167,7 +166,7 @@ export class WebSocketManager {
 }
 
 // Support environment variables but keep it simple
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
 export const ws = new WebSocketManager(WS_URL);
 
 export enum WebSocketEvents {

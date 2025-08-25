@@ -77,7 +77,7 @@ export default function Settings() {
           const userProfile = (data as { data: unknown }).data;
           setUser(userProfile as User);
         } catch (error) {
-          console.log(error);
+          console.error(error);
           router.push("/landing");
         }
       })();

@@ -101,7 +101,6 @@ const useWebSocket = (isAuthenticated: boolean, user: User | null) => {
       }
 
       const handleConnected = () => {
-        console.log("WebSocket connected");
         setConnectionStatus({
           isConnected: true,
           isReconnecting: false,
@@ -125,7 +124,6 @@ const useWebSocket = (isAuthenticated: boolean, user: User | null) => {
       };
 
       const handleReconnecting = (data: any) => {
-        console.log("WebSocket reconnecting...", data);
         setConnectionStatus({
           isConnected: false,
           isReconnecting: true,
