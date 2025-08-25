@@ -17,7 +17,7 @@ export function Logout(props: React.ComponentProps<'button'>) {
 
             router.push("/login")
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
     return <Button onClick={handleLogout} size="icon" {...props}>

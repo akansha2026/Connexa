@@ -54,9 +54,9 @@ interface NewGroupModalProps {
 }
 
 // Helper: fetch paginated users
-const fetchPaginatedUsers = async (page: number, limit: number = 20) => {
+const fetchPaginatedContacts = async (page: number) => {
   const { data } = await apiClient.get<{ data: User[]; meta: { total: number; pages: number; currPage: number } }>(
-    `/users?page=${page}&limit=${limit}`
+    `/contacts?page=${page}`
   );
   return data;
 };
@@ -100,11 +100,10 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({ trigger }) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const PAGE_SIZE = 20;
 
   const fetchUsers = async (pageNum: number) => {
     try {
-      const res = await fetchPaginatedUsers(pageNum, PAGE_SIZE);
+      const res = await fetchPaginatedContacts(pageNum);
       setUsers(res.data);
       setTotalPages(res.meta.pages);
       setPage(res.meta.currPage);
@@ -212,11 +211,10 @@ export const NewGroupModal: React.FC<NewGroupModalProps> = ({ trigger }) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const PAGE_SIZE = 20;
 
   const fetchUsers = async (pageNum: number) => {
     try {
-      const res = await fetchPaginatedUsers(pageNum, PAGE_SIZE);
+      const res = await fetchPaginatedContacts(pageNum);
       setUsers(res.data);
       setPage(res.meta.currPage);
       setTotalPages(res.meta.pages);

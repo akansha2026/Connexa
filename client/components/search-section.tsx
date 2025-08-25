@@ -1,20 +1,38 @@
 import { Search, X } from "lucide-react";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useRef, useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "motion/react";
+import { useStore } from "@/lib/store";
 
 export function SearchSection() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
+  const { conversations, setConversations } = useStore(); 
+  const [originalConversations, setOriginalConversations] = useState(conversations || []);
+
+  // Filter conversations as user types
+  useEffect(() => {
+    if (!searchValue.trim()) {
+      // Restore original conversations when cleared
+      setConversations(originalConversations);
+      return;
+    }
+
+    const query = searchValue.toLowerCase();
+    const filtered = originalConversations.filter(conv => 
+      conv.name?.toLowerCase().includes(query) ||
+      conv.participants?.some((p: any) => p.name.toLowerCase().includes(query))
+    );
+
+    // Update global state with filtered results
+    setConversations(filtered);
+  }, [searchValue, originalConversations, setConversations]);
+
   function handleSubmit(evt: FormEvent<HTMLFormElement>) {
     evt.preventDefault();
-    const query = inputRef.current?.value?.trim();
-    if (query) {
-      console.log("Searching for:", query);
-      // TODO: Implement search functionality
-    }
+    inputRef.current?.blur(); // Remove focus
   }
 
   function clearSearch() {
@@ -23,14 +41,15 @@ export function SearchSection() {
       inputRef.current.value = "";
       inputRef.current.focus();
     }
+
+    // Restore original conversations
+    setConversations(originalConversations);
   }
 
   return (
     <motion.div 
       className="relative"
-      animate={{ 
-        scale: isFocused ? 1.02 : 1,
-      }}
+      animate={{ scale: isFocused ? 1.02 : 1 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
       <div className={`

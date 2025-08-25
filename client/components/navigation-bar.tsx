@@ -3,11 +3,12 @@ import { SearchSection } from "./search-section";
 import { UserAccountMenu } from "./user-account-menu";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MessageSquarePlus, Users } from "lucide-react";
+import { MessageSquarePlus, UserPlus, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { ConnectionIndicator } from "./connection-status";
 import { NewChatModal, NewGroupModal } from "./new-conversation";
+import Link from "next/link";
 
 
 export function NavigationBar() {
@@ -23,10 +24,27 @@ export function NavigationBar() {
           </h1>
           <ConnectionIndicator connectionStatus={connectionStatus} />
           <div className="flex items-center gap-2">
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
+                  <Link href="/discover">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full hover:bg-muted transition-transform hover:scale-105"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Discover People</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <NewChatModal
                     trigger={
                       <Button

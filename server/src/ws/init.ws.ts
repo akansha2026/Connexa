@@ -20,7 +20,6 @@ export function initWebSocket(server: Server<typeof IncomingMessage, typeof Serv
     // Handling WebSocket connection
     wss.on('connection', async function (ws) {
         const loggedInUser: LoggedInUser = (ws as any).user; // Cast to any to access user property
-        console.log("Client connected: ", loggedInUser)
         // Make the user online in DB
         try {
             await dbClient.user.update({
@@ -45,11 +44,10 @@ export function initWebSocket(server: Server<typeof IncomingMessage, typeof Serv
 
             // Update the user status in DB to offline & last seen time
             try {
-                const user = await dbClient.user.update({
+                await dbClient.user.update({
                     where: { id: loggedInUser.id },
                     data: { online: false, lastSeen: new Date() }
                 });
-                console.log("Disconnected user: ", user)
             } catch (error) {
                 console.error('Error updating user offline status:', error);
                 return;
