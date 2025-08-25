@@ -8,7 +8,7 @@ type ChatListItemProps = {
     conversation: Conversation;
 };
 
-export function ChatListItem({ conversation }: ChatListItemProps) {
+export function ChatListItem({ conversation }: Readonly<ChatListItemProps>) {
     const { user, setActiveConversation, activeConversation } = useStore();
 
     function displayName(conversation: Conversation): string {

@@ -28,9 +28,6 @@ const EmptyState = ({ connectionStatus }: { connectionStatus: ConnectionStatus }
     return "Good evening";
   };
 
-  const handleQuickAction = (action: string) => {
-    toast.info(`${action} - Feature coming soon!`);
-  };
 
   return (
     <div className="h-full w-full flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-background to-muted/20">

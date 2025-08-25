@@ -1,5 +1,6 @@
 import { AttachmentPreview } from "@/lib/index.types";
 import { FileText, X } from "lucide-react";
+import Image from "next/image";
 
 export const AttachmentPreviewComponent = ({
   attachments,
@@ -19,7 +20,7 @@ export const AttachmentPreviewComponent = ({
             className="relative group bg-muted rounded-lg p-2 flex items-center gap-2 max-w-[200px]"
           >
             {attachment.type === 'image' && attachment.preview && (
-              <img
+              <Image
                 src={attachment.preview}
                 alt="Preview"
                 className="w-8 h-8 object-cover rounded"

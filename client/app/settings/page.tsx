@@ -19,15 +19,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 
-import { 
-  Mail, 
-  User as UserIcon, 
-  Lock, 
-  Camera, 
+import {
+  Mail,
+  User as UserIcon,
+  Lock,
+  Camera,
   ArrowLeft,
   Shield,
   Bell,
-  Moon,
   Globe,
   Smartphone,
   Download,
@@ -44,21 +43,19 @@ export default function Settings() {
   const { user, setUser } = useStore();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  
+
   // Form states
   const [previewImage, setPreviewImage] = useState("");
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
   const [editPasswordDialogOpen, setEditPasswordDialogOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
-  
+
   // Loading states
   const [isUpdatingName, setIsUpdatingName] = useState(false);
-  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
 
@@ -83,7 +80,6 @@ export default function Settings() {
       })();
     } else {
       setEditName(user.name);
-      setEditEmail(user.email);
     }
   }, [router, setUser, user]);
 
@@ -96,8 +92,8 @@ export default function Settings() {
 
     try {
       setIsUpdatingAvatar(true);
-      const { data: res } = await apiClient.patch<{ message: string, data: User }>("/users", { 
-        avatarUrl: previewImage 
+      const { data: res } = await apiClient.patch<{ message: string, data: User }>("/users", {
+        avatarUrl: previewImage
       });
       toast.success("Profile picture updated!");
       setUser({ ...user, avatarUrl: res.data.avatarUrl } as User);
@@ -123,8 +119,8 @@ export default function Settings() {
 
     try {
       setIsUpdatingName(true);
-      const { data: res } = await apiClient.patch<{ message: string, data: User }>("/users", { 
-        name: editName 
+      const { data: res } = await apiClient.patch<{ message: string, data: User }>("/users", {
+        name: editName
       });
       toast.success("Name updated successfully!");
       setUser({ ...user, name: res.data.name } as User);
@@ -140,7 +136,7 @@ export default function Settings() {
 
   const handlePasswordUpdate = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("All password fields are required");
       return;
@@ -159,8 +155,8 @@ export default function Settings() {
     try {
       setIsUpdatingPassword(true);
       // Note: You'll need to implement current password verification on backend
-      const { data: res } = await apiClient.patch<{ message: string }>("/users", { 
-        password: newPassword 
+      await apiClient.patch<{ message: string }>("/users", {
+        password: newPassword
       });
       toast.success("Password updated successfully!");
       setCurrentPassword("");
@@ -185,6 +181,7 @@ export default function Settings() {
       router.push("/landing");
     } catch (error) {
       toast.error("Failed to logout");
+      console.error(error)
     }
   };
 
@@ -202,7 +199,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/50"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -225,7 +222,7 @@ export default function Settings() {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
-        
+
         {/* Profile Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -254,7 +251,7 @@ export default function Settings() {
                     <Camera className="h-6 w-6 text-white" />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Typography variant="h4" className="font-medium">{user.name}</Typography>
@@ -304,10 +301,10 @@ export default function Settings() {
                       <form onSubmit={handleNameUpdate} className="space-y-4">
                         <div>
                           <Label htmlFor="name">Name</Label>
-                          <Input 
+                          <Input
                             id="name"
-                            placeholder="Enter your name" 
-                            value={editName} 
+                            placeholder="Enter your name"
+                            value={editName}
                             onChange={(e) => setEditName(e.target.value)}
                             className="mt-1"
                           />
@@ -364,7 +361,7 @@ export default function Settings() {
                         <div className="space-y-2">
                           <Label htmlFor="current-password">Current Password</Label>
                           <div className="relative">
-                            <Input 
+                            <Input
                               id="current-password"
                               type={showPasswords ? "text" : "password"}
                               placeholder="Enter current password"
@@ -382,10 +379,10 @@ export default function Settings() {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <Label htmlFor="new-password">New Password</Label>
-                          <Input 
+                          <Input
                             id="new-password"
                             type={showPasswords ? "text" : "password"}
                             placeholder="Enter new password"
@@ -393,10 +390,10 @@ export default function Settings() {
                             onChange={(e) => setNewPassword(e.target.value)}
                           />
                         </div>
-                        
+
                         <div className="space-y-2">
                           <Label htmlFor="confirm-password">Confirm New Password</Label>
-                          <Input 
+                          <Input
                             id="confirm-password"
                             type={showPasswords ? "text" : "password"}
                             placeholder="Confirm new password"
@@ -404,11 +401,11 @@ export default function Settings() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                           />
                         </div>
-                        
+
                         <DialogFooter>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
+                          <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => {
                               setEditPasswordDialogOpen(false);
                               setCurrentPassword("");
@@ -453,11 +450,13 @@ export default function Settings() {
                 </div>
                 <Switch checked={lastSeen} onCheckedChange={setLastSeen} />
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/30 transition-colors">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium">Read Receipts</Label>
-                  <p className="text-xs text-muted-foreground">Let others know when you've read their messages</p>
+                  <p className="text-xs text-muted-foreground">
+                    Let others know when you&apos;ve read their messages
+                  </p>
                 </div>
                 <Switch checked={readReceipts} onCheckedChange={setReadReceipts} />
               </div>
@@ -497,7 +496,7 @@ export default function Settings() {
                 </div>
                 <Switch checked={notifications} onCheckedChange={setNotifications} />
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/30 transition-colors">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium">Sound Effects</Label>
@@ -529,8 +528,8 @@ export default function Settings() {
                   <Label className="text-sm font-medium">Theme</Label>
                   <p className="text-xs text-muted-foreground">Choose your preferred appearance</p>
                 </div>
-                <select 
-                  value={theme} 
+                <select
+                  value={theme}
                   onChange={(e) => setTheme(e.target.value)}
                   className="px-3 py-1 rounded-md border border-border bg-background text-sm"
                 >
@@ -539,7 +538,7 @@ export default function Settings() {
                   <option value="system">System</option>
                 </select>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/30 transition-colors">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium">Auto-download Media</Label>
@@ -587,7 +586,7 @@ export default function Settings() {
                   <span className="text-muted-foreground">Coming Soon</span>
                 </Button>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium">Clear Cache</Label>
@@ -626,15 +625,15 @@ export default function Settings() {
                   <span>Coming Soon</span>
                 </Button>
               </div>
-              
+
               <div className="flex items-center justify-between p-4 rounded-lg border border-orange-200 bg-orange-50 dark:border-orange-800/30 dark:bg-orange-900/10">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium text-orange-700 dark:text-orange-400">Sign Out</Label>
                   <p className="text-xs text-orange-600 dark:text-orange-500">Sign out from your account on this device</p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleLogout}
                   className="border-orange-300 text-orange-700 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900/20"
                 >
@@ -659,14 +658,14 @@ export default function Settings() {
           <form onSubmit={handleAvatarUpdate} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="avatar-url">Image URL</Label>
-              <Input 
+              <Input
                 id="avatar-url"
-                placeholder="https://example.com/image.jpg" 
-                value={previewImage} 
+                placeholder="https://example.com/image.jpg"
+                value={previewImage}
                 onChange={(e) => setPreviewImage(e.target.value)}
               />
             </div>
-            
+
             {previewImage && (
               <div className="flex justify-center">
                 <Avatar className="h-20 w-20 border">
@@ -675,11 +674,11 @@ export default function Settings() {
                 </Avatar>
               </div>
             )}
-            
+
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
                   setAvatarDialogOpen(false);
                   setPreviewImage("");

@@ -10,7 +10,7 @@ export function SearchSection() {
   const [isFocused, setIsFocused] = useState(false);
 
   const { conversations, setConversations } = useStore(); 
-  const [originalConversations, setOriginalConversations] = useState(conversations || []);
+  const originalConversations = conversations || [];
 
   // Filter conversations as user types
   useEffect(() => {
