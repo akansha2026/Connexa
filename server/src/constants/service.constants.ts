@@ -1,0 +1,1 @@
+export const IMAGE_BASEURL_PREFIX = "data:image/"
