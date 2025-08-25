@@ -1,10 +1,10 @@
-import { WebSocketServer, RawData, WebSocket } from "ws";
+import { WebSocketServer, RawData } from "ws";
 import { parse } from 'cookie'
 import jwt from 'jsonwebtoken'
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { JWT_SECRET_KEY } from "../configs/variables";
 import { LoggedInUser, MessageEventData } from "../types/ws.types";
-import { eventHandlers, registerEventHandlers, registerHandler } from "./events.ws";
+import { eventHandlers, registerEventHandlers } from "./events.ws";
 import { AuthTokenPayload } from "../types/auth.types";
 import { onlineUsers } from "../configs/ws";
 import dbClient from "../configs/db";

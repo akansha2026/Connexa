@@ -4,7 +4,6 @@ import logger from "../configs/logger";
 import { AuthTokenPayload } from "../types/auth.types";
 import bcrypt from "bcrypt";
 import dbClient from "../configs/db";
-import { IMAGE_BASEURL_PREFIX } from "../constants/service.constants";
 import { isValidImageUrl } from "../utils/payload.utils";
 import { UpdateUserPayload } from "../types/user.types";
 

@@ -9,7 +9,6 @@ import logger from "../configs/logger";
 import dbClient from "../configs/db";
 import { CreateConversationPayload } from "../types/conversation.types";
 import { ConversationConstants } from "../constants/conversation.constants";
-import { Message } from "@prisma/client";
 
 export async function createConversation(req: Request, res: Response) {
   logger.debug("Entered createConnversation controller")
@@ -110,14 +109,17 @@ export async function createConversation(req: Request, res: Response) {
     }
 
     if (!payload.isGroup) {
-      // Check if a one-to-one conversation already exists between the participants
       const existingConversation = await dbClient.conversation.findFirst({
         where: {
           isGroup: false,
+          AND: [
+            { participants: { some: { userId: payload.participants[0] } } },
+            { participants: { some: { userId: payload.participants[1] } } },
+          ],
           participants: {
-            every: {
+            none: {
               userId: {
-                in: payload.participants,
+                notIn: payload.participants,
               },
             },
           },
@@ -132,36 +134,66 @@ export async function createConversation(req: Request, res: Response) {
       }
     }
 
-    const createdConversation = await dbClient.conversation.create({
-      data: {
-        isGroup: payload.isGroup,
-        name: payload.name,
-        avatarUrl: payload.avatarUrl || null,
-        ownerId: loggedInUserId!,
+    const createdConversation = await dbClient.$transaction(async (tx) => {
+      const conversation = await tx.conversation.create({
+        data: {
+          isGroup: payload.isGroup,
+          name: payload.name,
+          avatarUrl: payload.avatarUrl || null,
+          ownerId: loggedInUserId!,
+        },
+      });
+
+      await tx.participant.createMany({
+        data: payload.participants.map((participantId) => ({
+          userId: participantId,
+          conversationId: conversation.id,
+        })),
+      });
+
+      if (payload.isGroup && payload.admins) {
+        await tx.conversationAdmin.createMany({
+          data: payload.admins.map((adminId) => ({
+            userId: adminId,
+            conversationId: conversation.id,
+          })),
+        });
+      }
+
+      return conversation;
+    });
+
+    const conversationWithDetails = await dbClient.conversation.findUnique({
+      where: { id: createdConversation.id },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: !payload.isGroup,
+              },
+            },
+          },
+        },
+        admins: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    // Add participants to the conversation
-    await dbClient.participant.createMany({
-      data: payload.participants.map((participantId) => ({
-        userId: participantId,
-        conversationId: createdConversation.id,
-      })),
-    });
-
-    // Add admins to the conversation if it's a group chat
-    if (payload.isGroup && payload.admins) {
-      await dbClient.conversationAdmin.createMany({
-        data: payload.admins.map((adminId) => ({
-          userId: adminId,
-          conversationId: createdConversation.id,
-        })),
-      });
-    }
-
     res.status(CREATED_CODE).json({
       message: "Conversation created successfully",
-      data: createdConversation,
+      data: conversationWithDetails,
     });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
@@ -177,13 +209,13 @@ export async function getConversationsByUserId(req: Request, res: Response) {
   logger.debug("Entered getConversationsByUserId controller");
   try {
     const userId = req.user?.id;
-
     const limit = ConversationConstants.CONVERSATION_PAGE_SIZE;
 
-    // Handle pagination parameters
+    // Pagination
     const page = parseInt(req.query.page as string) || 1;
     const offset = (page - 1) * limit;
 
+    // Fetch conversations for the user
     const conversations = await dbClient.conversation.findMany({
       where: {
         participants: {
@@ -192,65 +224,63 @@ export async function getConversationsByUserId(req: Request, res: Response) {
           },
         },
       },
-      orderBy: [
-        { updatedAt: 'desc' },
-      ],
+      orderBy: [{ updatedAt: "desc" }],
       skip: offset,
       take: limit,
     });
 
-    // Finding total conversations
     const totalConversations = await dbClient.conversation.count({
       where: {
         participants: {
-          some: {
-            userId: userId,
-          },
+          some: { userId: userId },
         },
-      }
+      },
     });
 
-    // Find the last message corresponding to each conversation
     const conversationIds = conversations.map((conv) => conv.id);
 
+    // Fetch all participants for these conversations
     const participants = await dbClient.participant.findMany({
       include: {
         user: {
-          omit: {
-            password: true
-          }
-        }
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+          },
+        },
       },
       where: {
-        conversationId: {
-          in: conversationIds,
-        },
+        conversationId: { in: conversationIds },
       },
     });
 
-    const lastMessages = new Map<string, any>()
-
-    for(const id of conversationIds){
+    // Fetch last message for each conversation
+    const lastMessages = new Map<string, any>();
+    for (const id of conversationIds) {
       const message = await dbClient.message.findMany({
-        where: {
-          conversationId: id
-        },
-        orderBy: [
-          {createdAt: 'desc'}
-        ],
-        take: 1
-      })
-      lastMessages.set(id, message?.[0])
+        where: { conversationId: id },
+        orderBy: [{ createdAt: "desc" }],
+        take: 1,
+      });
+      lastMessages.set(id, message?.[0] || null);
     }
-    // Map last messages to conversations
+
+    // Map participants & last message to conversation
     const updatedConversations = conversations.map((conversation) => {
-      const participantList = participants
-        .filter((participant) => participant.conversationId === conversation.id).map((participant) => participant.user);
-        
+      let participantList = participants
+        .filter((p) => p.conversationId === conversation.id)
+        .map((p) => {
+          const base = { id: p.user.id, name: p.user.name, avatarUrl: '' };
+          // Include avatar only for non-group
+          if (!conversation.isGroup) base.avatarUrl = p.user.avatarUrl as string;
+          return base;
+        });
+
       return {
         ...conversation,
-        lastMessage: lastMessages.get(conversation.id) || null, // Include last message or null if not found
-        participants: participantList
+        lastMessage: lastMessages.get(conversation.id) || null,
+        participants: participantList,
       };
     });
 
@@ -260,14 +290,12 @@ export async function getConversationsByUserId(req: Request, res: Response) {
       meta: {
         total: totalConversations,
         pages: Math.ceil(totalConversations / limit),
-        currPage: page
+        currPage: page,
       },
     });
   } catch (error) {
     let message = INTERNAL_SERVER_ERROR_MESSAGE;
-    if (error instanceof Error) {
-      message = error.message;
-    }
+    if (error instanceof Error) message = error.message;
     logger.error(message);
     res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
   }
@@ -275,33 +303,35 @@ export async function getConversationsByUserId(req: Request, res: Response) {
 
 export async function getConversationMessages(req: Request, res: Response) {
   logger.debug("Entered getConversationMessages controller");
+
   try {
     const conversationId = req.params.id;
     const limit = ConversationConstants.MESSAGE_PAGE_SIZE;
 
     // Handle pagination parameters
-    const page = parseInt(req.query.page as string) || 1;
+    const page = Number.parseInt(req.query.page as string, 10) || 1;
     const offset = (page - 1) * limit;
 
+    // Fetch messages (oldest first for chat UI)
     const messages = await dbClient.message.findMany({
       include: {
-        sender: true
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
-      where: {
-        conversationId: conversationId,
-      },
+      where: { conversationId },
       skip: offset,
       take: limit,
-      orderBy: [
-        {createdAt: 'desc'}
-      ]
+      orderBy: { createdAt: "desc" },
     });
 
     const totalMessages = await dbClient.message.count({
-      where: {
-        conversationId: conversationId,
-      }
-    })
+      where: { conversationId },
+    });
 
     res.status(200).json({
       message: "Messages fetched successfully",
@@ -313,11 +343,12 @@ export async function getConversationMessages(req: Request, res: Response) {
       },
     });
   } catch (error) {
-    let message = INTERNAL_SERVER_ERROR_MESSAGE;
-    if (error instanceof Error) {
-      message = error.message;
-    }
+    const message =
+      error instanceof Error ? error.message : INTERNAL_SERVER_ERROR_MESSAGE;
     logger.error(message);
-    res.status(INTERNAL_SERVER_ERROR_CODE).json({ error: message });
+
+    res
+      .status(INTERNAL_SERVER_ERROR_CODE)
+      .json({ error: message });
   }
 }

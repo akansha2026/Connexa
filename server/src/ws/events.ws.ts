@@ -1,8 +1,9 @@
 import { WebSocket } from "ws";
 import { WebSocketEvents } from "../constants/events.constants";
-import { HandlerData, HandlerFunction, LoggedInUser, MessageType, NewMessagePayload } from "../types/ws.types";
+import { HandlerData, HandlerFunction, MessageType, NewMessagePayload } from "../types/ws.types";
 import dbClient from "../configs/db";
 import { onlineUsers } from "../configs/ws";
+import logger from "../configs/logger";
 
 export const eventHandlers = new Map<string, HandlerFunction>;
 
@@ -79,6 +80,7 @@ async function handleNewMessage(payload: HandlerData) {
             }
         }
     } catch (error) {
+        logger.error("Error in handling new message event", error)
         sendMessage(ws, WebSocketEvents.ERROR, {
             error: "Internal Server Error"
         })

@@ -39,7 +39,15 @@ export type Message = {
   senderId: string
   conversationId: string
   createdAt: Date
-  sender: User
+  sender: User,
+  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+  fileName?: string;
+  fileSize?: number;
+  editedAt?: string;
+  reactions?: { emoji: string; count: number; users: string[] }[];
+  readAt?: string;
+  deliveredAt?: string;
+  sentAt?: string;
 }
 
 export type Contact = {
@@ -57,20 +65,16 @@ export type MetaData = {
   currPage: number
 }
 
-export type Store = {
-  user: User | null;
-  setUser: (newUser: User | null) => void;
+export interface ConnectionStatus {
+  isConnected: boolean;
+  isReconnecting: boolean;
+  error: string | null;
+  lastConnectedAt: Date | null;
+}
 
-  conversations: Conversation[] | null;
-  setConversations: (newConversations: Conversation[] | null) => void;
-
-  activeConversation: Conversation | null;
-  setActiveConversation: (conversation: Conversation | null) => void;
-
-  messages: Map<string, Message[]>;
-  setMessages: (conversationId: string, messages: Message[]) => void;
-
-  messagesMeta: Map<string, MetaData>;
-  setMessagesMeta: (conversationId: string, metadata: MetaData) => void;
-};
-
+export interface AttachmentPreview {
+  id: string;
+  file: File;
+  type: 'image' | 'document' | 'audio';
+  preview?: string;
+}

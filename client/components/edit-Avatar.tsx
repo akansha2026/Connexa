@@ -27,7 +27,7 @@ export default function EditImageDialog({
   handleSubmit,
   isOpen,
   setIsOpen
-}: EditImageDialogProps) {
+}: Readonly<EditImageDialogProps>) {
   
 
   async function handleChange(evt: ChangeEvent<HTMLInputElement>) {
