@@ -315,7 +315,7 @@ export async function resetPassword(req: Request, res: Response) {
       tokenPayload !== null &&
       "email" in tokenPayload
     ) {
-      email = (tokenPayload as jwt.JwtPayload).email as string;
+      email = tokenPayload.email as string;
     }
 
     if (!email) {
@@ -367,7 +367,7 @@ export async function verifyEmail(req: Request, res: Response) {
       tokenPayload !== null &&
       "email" in tokenPayload
     ) {
-      email = (tokenPayload as jwt.JwtPayload).email as string;
+      email = tokenPayload.email as string;
     }
 
     if (!email) {
@@ -377,8 +377,8 @@ export async function verifyEmail(req: Request, res: Response) {
       return;
     }
 
-    // Update tyhe user status
-    const FoundUser = dbClient.user.update({
+    // Update the user status
+    dbClient.user.update({
       data: {
         verified: true,
       },
