@@ -179,7 +179,7 @@ const useWebSocket = (isAuthenticated: boolean, user: User | null) => {
       });
       toast.error("Failed to connect to chat server");
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, setConnectionStatus]);
 
   const manualReconnect = useCallback(async () => {
     if (wsRef.current) {

@@ -7,13 +7,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/axios';
-import { DateTime } from 'luxon';
 import { UserCard } from '@/components/user-card';
 import { AppPagination } from '@/components/pagination';
 
 const PAGE_SIZE = 20;
 
-// types.ts
 export interface User {
     id: string;
     name: string;
@@ -59,24 +57,23 @@ export default function UsersContactsPage() {
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [usersMeta, setUsersMeta] = useState<PaginationMeta>({ total: 0, pages: 1, currPage: 1 });
     const [contactsMeta, setContactsMeta] = useState<PaginationMeta>({ total: 0, pages: 1, currPage: 1 });
-    const [activeTab, setActiveTab] = useState<string>('users');
+    const [activeTab, setActiveTab] = useState<'users' | 'contacts'>('users');
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState<string>('name');
+    const [sortBy, setSortBy] = useState<'name' | 'email' | 'createdAt'>('name');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [usersLoading, setUsersLoading] = useState(false);
     const [contactsLoading, setContactsLoading] = useState(false);
     const [addContactLoading, setAddContactLoading] = useState<string | null>(null);
 
-    // Fetch functions
     const fetchUsers = async (page = 1) => {
         setUsersLoading(true);
         try {
             const { data } = await apiClient.get<UsersResponse>(`/users?page=${page}&limit=${PAGE_SIZE}`);
             setUsers(data.data);
             setUsersMeta(data.meta);
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err);
-            toast.error("Failed to fetch users");
+            toast.error('Failed to fetch users');
         } finally {
             setUsersLoading(false);
         }
@@ -88,40 +85,42 @@ export default function UsersContactsPage() {
             const { data } = await apiClient.get<ContactsResponse>(`/contacts?page=${page}&limit=${PAGE_SIZE}`);
             setContacts(data.data);
             setContactsMeta(data.meta);
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err);
-            toast.error("Failed to fetch contacts");
+            toast.error('Failed to fetch contacts');
         } finally {
             setContactsLoading(false);
         }
     };
 
-    const addContact = async (userId: string) => {
-        setAddContactLoading(userId);
+    const addContact = async (contactId: string) => {
+        setAddContactLoading(contactId);
         try {
-            await apiClient.post('/contacts', { contactId: userId });
-            toast.success("Contact added");
+            await apiClient.post('/contacts', { contactId });
+            toast.success('Contact added');
             await Promise.all([fetchUsers(usersMeta.currPage), fetchContacts(contactsMeta.currPage)]);
-        } catch (err: any) {
-            toast.error(err?.response?.data?.error || "Failed to add contact");
+        } catch (err: unknown) {
+            const error = (err as any)?.response?.data?.error;
+            toast.error(error || 'Failed to add contact');
         } finally {
             setAddContactLoading(null);
         }
     };
 
-    const removeContact = async (userId: string) => {
+    const removeContact = async (contactId: string) => {
         try {
-            await apiClient.delete(`/contacts/${userId}`);
-            toast.success("Contact removed");
+            await apiClient.delete(`/contacts/${contactId}`);
+            toast.success('Contact removed');
             await Promise.all([fetchUsers(usersMeta.currPage), fetchContacts(contactsMeta.currPage)]);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            toast.error(err?.response?.data?.error || "Failed to remove contact");
+            const error = (err as any)?.response?.data?.error;
+            toast.error(error || 'Failed to remove contact');
         }
     };
 
     const startChat = async (userId: string) => {
-        toast.info("Opening chat...");
+        toast.info('Opening chat...');
         // Implement conversation navigation here
     };
 
@@ -130,16 +129,15 @@ export default function UsersContactsPage() {
         else fetchContacts(1);
     }, [activeTab]);
 
-    // Filter & sort
     const filteredUsers = useMemo(() => {
         const filtered = users.filter(u =>
             u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             u.email.toLowerCase().includes(searchTerm.toLowerCase())
         );
-        type SortKey = 'name' | 'email' | 'createdAt';
+
         return filtered.sort((a, b) => {
-            const aValue = a[sortBy as SortKey] ?? '';
-            const bValue = b[sortBy as SortKey] ?? '';
+            const aValue = a[sortBy] ?? '';
+            const bValue = b[sortBy] ?? '';
             return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         });
     }, [users, searchTerm, sortBy, sortOrder]);
@@ -149,10 +147,10 @@ export default function UsersContactsPage() {
             c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             c.email.toLowerCase().includes(searchTerm.toLowerCase())
         );
-        type SortKey = 'name' | 'email' | 'createdAt';
+
         return filtered.sort((a, b) => {
-            const aValue = a[sortBy as SortKey] ?? '';
-            const bValue = b[sortBy as SortKey] ?? '';
+            const aValue = a[sortBy] ?? '';
+            const bValue = b[sortBy] ?? '';
             return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         });
     }, [contacts, searchTerm, sortBy, sortOrder]);
@@ -186,7 +184,7 @@ export default function UsersContactsPage() {
                             className="pl-10"
                         />
                     </div>
-                    <Select value={sortBy} onValueChange={value => setSortBy(value)}>
+                    <Select value={sortBy} onValueChange={value => setSortBy(value as 'name' | 'email' | 'createdAt')}>
                         <SelectTrigger className="w-40">
                             <SelectValue />
                         </SelectTrigger>
@@ -202,7 +200,11 @@ export default function UsersContactsPage() {
                 </div>
 
                 {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <Tabs
+                    value={activeTab}
+                    onValueChange={(value) => setActiveTab(value as 'users' | 'contacts')}
+                    className="space-y-6"
+                >
                     <TabsList className="grid w-full grid-cols-2 max-w-md">
                         <TabsTrigger value="users" className="flex items-center gap-2">
                             <Users className="h-4 w-4" /> All Users ({usersMeta.total})
@@ -212,7 +214,6 @@ export default function UsersContactsPage() {
                         </TabsTrigger>
                     </TabsList>
 
-                    {/* Users Tab */}
                     <TabsContent value="users" className="space-y-6">
                         {usersLoading ? (
                             <div className="flex items-center justify-center py-12">
@@ -252,7 +253,6 @@ export default function UsersContactsPage() {
                         )}
                     </TabsContent>
 
-                    {/* Contacts Tab */}
                     <TabsContent value="contacts" className="space-y-6">
                         {contactsLoading ? (
                             <div className="flex items-center justify-center py-12">
@@ -272,7 +272,7 @@ export default function UsersContactsPage() {
                                                 lastSeen: null,
                                                 updatedAt: contact.createdAt
                                             }}
-                                            isContact={true}
+                                            isContact
                                             onAddContact={addContact}
                                             onRemoveContact={removeContact}
                                             onStartChat={startChat}
@@ -284,7 +284,7 @@ export default function UsersContactsPage() {
                                     <div className="text-center py-12 text-muted-foreground">
                                         <UserCheck className="h-12 w-12 mx-auto mb-4" />
                                         <h3 className="text-lg font-medium mb-2">No contacts yet</h3>
-                                        <p>Start by adding users from the "All Users" tab</p>
+                                        <p>Start by adding users from the &quot;All Users&quot; tab</p>
                                     </div>
                                 )}
                                 {contactsMeta.pages > 1 && (
