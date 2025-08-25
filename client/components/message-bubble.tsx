@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { Message, MessageType } from "@/lib/index.types";
 import { Check, CheckCheck, Clock, AlertCircle } from "lucide-react";
 import { useState, memo } from "react";
+import Image from "next/image";
 
 interface MessageBubbleProps {
   message: Message;
@@ -93,7 +94,7 @@ function MessageBubbleComponent({
     return (
       <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-background shadow-sm">
         {avatarSrc && !imageError ? (
-          <img
+          <Image
             src={avatarSrc}
             alt={message.sender.name || 'User'}
             className="w-full h-full object-cover"
@@ -127,7 +128,7 @@ function MessageBubbleComponent({
     if (message.type === MessageType.IMAGE && message.mediaUrl) {
       return (
         <div className="space-y-2">
-          <img
+          <Image
             src={message.mediaUrl}
             alt="Shared image"
             className="max-w-full rounded-lg"

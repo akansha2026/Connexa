@@ -306,7 +306,7 @@ export const NewGroupModal: React.FC<NewGroupModalProps> = ({ trigger }) => {
                 <Checkbox checked={selectedUsers.some(u => u.id === user.id)} onCheckedChange={() => handleUserSelect(user)} />
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user.avatarUrl} />
-                  <AvatarFallback>{user.name.split(' ').map((n: any) => n[0]).join('').toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{user.name.split(' ').map((n) => n[0]).join('').toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
