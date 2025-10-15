@@ -70,12 +70,7 @@ const useAuth = () => {
         isAuthenticated: false
       }));
 
-      toast.error("Authentication failed. Redirecting to login...");
-
-      // Redirect after showing error
-      setTimeout(() => {
-        router.push("/landing");
-      }, 2000);
+      router.push("/landing");
     }
   }, [router, setUser, user]);
 
@@ -365,7 +360,7 @@ export default function HomePage() {
             maxSize={40}
             className="border-r border-border/40 bg-card shadow-sm"
           >
-            <NavigationBar/>
+            <NavigationBar />
           </ResizablePanel>
 
           <ResizableHandle className="w-[2px] bg-border/20 hover:bg-border/50 transition-colors rounded-full" />
@@ -376,7 +371,7 @@ export default function HomePage() {
             minSize={60}
             className="bg-background"
           >
-            <ChatWindow/>
+            <ChatWindow />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
