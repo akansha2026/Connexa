@@ -25,7 +25,6 @@ import {
   CLIENT_PASSWORD_RESET_ENDPOINT,
   CLIENT_VERIFY_EMAIL_ENDPOINT,
   JWT_SECRET_KEY,
-  SMTP_USER,
 } from "../configs/variables";
 import path from "path";
 import jwt from "jsonwebtoken";
@@ -102,7 +101,7 @@ export async function signup(req: Request, res: Response) {
 
     let templatePath = path.join(process.cwd(), "templates", "welcome.ejs");
     await sendEmail(
-      SMTP_USER!,
+      "no-reply@connexa-app.com",
       credentials.email,
       "Welcome to Connexa!",
       templatePath,
@@ -278,7 +277,7 @@ export async function forgotPassword(req: Request, res: Response) {
       "templates",
       "reset-password.ejs",
     );
-    await sendEmail(SMTP_USER!, email, "Password Reset", templatePath, {
+    await sendEmail("no-reply@connexa-app.com", email, "Password Reset", templatePath, {
       name: foundUser.name,
       resetLink: `${CLIENT_BASE_URL}${verifyEmailEndpoint}`,
     });
