@@ -5,6 +5,7 @@ dotenv.config();
 
 export const {
   PORT,
+  FROM_EMAIL,
   NODE_ENV,
   SENDGRID_API_KEY,
   CLIENT_BASE_URL,
