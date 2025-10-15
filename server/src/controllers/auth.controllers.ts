@@ -378,7 +378,7 @@ export async function verifyEmail(req: Request, res: Response) {
     }
 
     // Update the user status
-    dbClient.user.update({
+    await dbClient.user.update({
       data: {
         verified: true,
       },
